@@ -1,0 +1,5 @@
+node_modules
+.git
+.history
+ignore
+lib

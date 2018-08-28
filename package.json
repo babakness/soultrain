@@ -1,0 +1,36 @@
+{
+  "name": "soultrain",
+  "version": "0.0.15",
+  "description": "Soultrain is a compact functional library written in Typescript. It is inspired by Ramda and container-style programming based Algebraic Data Types.",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "test": "ava-ts",
+    "test-watch": "npm run test -- --watch --pretty",
+    "build": "tsc",
+    "prepare": "tsc",
+    "dev": "tsc --watch --pretty"
+  },
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  },
+  "author": "Babak / @babakness",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "^0.25.0",
+    "ava-ts": "^0.24.6",
+    "ts-node": "^7.0.0",
+    "tsc": "^1.20150623.0",
+    "tsc-node": "^0.0.3",
+    "typescript": "^3.0.0"
+  },
+  "dependencies": {
+    "fp-ts": "^1.7.0"
+  }
+}
