@@ -1,4 +1,5 @@
 /** @module function/pipe.ts */
+
 import { toArray } from '../array/toArray'
 import { ExtractFunctionArguments, ExtractFunctionReturnValue } from '../helper-types'
 

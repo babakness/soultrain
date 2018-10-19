@@ -1,4 +1,5 @@
 /** @module equals.ts */
+
 import { toArray } from './array/toArray'
 import { untypedCurry } from './function'
 

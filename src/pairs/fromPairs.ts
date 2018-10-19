@@ -1,4 +1,5 @@
 /** @module pairs/fromPairs.ts */
+
 import { Pairs } from '../helper-types'
 import { assoc } from '../object'
 /**

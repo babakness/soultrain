@@ -1,4 +1,5 @@
 /** @module array/tail.ts */
+
 import { Tail } from '../helper-types'
 
 /**

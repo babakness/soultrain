@@ -1,4 +1,5 @@
 /** @module maybe.ts */
+
 import { HKT, Type, URI2HKT, URIS } from 'fp-ts/lib/HKT'
 import { isNullable, isNullyOrNaN } from './check'
 import { adtn, Applicative, Apply, ArrayApplicative, ArrayApply, HKT0  } from './helper-types'

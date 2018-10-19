@@ -1,4 +1,5 @@
 /** @module array/sumColumn.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 /**
  * Takes a column and a row of objects and returns the sum value at key of object

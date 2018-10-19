@@ -1,4 +1,5 @@
 /** @module index.ts */
+
 import { HKT, Type, URIS } from 'fp-ts/lib/HKT'
 
 declare module 'fp-ts/lib/HKT' {

@@ -1,4 +1,5 @@
 /** @module array/popIndex.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 import { ValueAt } from '../helper-types'
 export function popIndex<A, I extends number>( index: I, arr: A[] ): [A, A[]]

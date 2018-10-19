@@ -1,4 +1,5 @@
 /** @module matrix.ts */
+
 import { head } from './array/head'
 import { pluck } from './array/pluck'
 import { reverse } from './array/reverse'

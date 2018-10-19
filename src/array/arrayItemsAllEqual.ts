@@ -1,4 +1,5 @@
 /** @module array/arrayItemsAllEqual.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 /**
  * Check to see if every item in an array is equal to specific value

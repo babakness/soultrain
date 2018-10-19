@@ -1,4 +1,5 @@
 /** @module array/splitAt.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 /**
  * Split an array at a given index

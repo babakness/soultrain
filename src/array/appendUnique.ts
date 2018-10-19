@@ -1,4 +1,5 @@
 /** @module array/appendUnique.ts */
+
 import { untypedCurry } from '../function'
 import { AppendUnique, BasicTypes } from '../helper-types'
 import { filterEntryKeys } from '../transducers'

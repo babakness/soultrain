@@ -1,4 +1,5 @@
 /** @module array/pushUnique.ts */
+
 import { untypedCurry } from '../function'
 import { AppendUnique, BasicTypes } from '../helper-types'
 interface IPushUnique<Item> {

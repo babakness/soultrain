@@ -1,4 +1,5 @@
 /** @module function/parallel.ts */
+
 import head from '../array/head'
 import last from '../array/last'
 import { AnyFunction, BasicTypes, Contains, ContainsType, Equals, ExtractFunctionArguments, ExtractFunctionReturnValue, Function1, FunctionProperties, IsAny, IsArray, Prepend, Reverse, ValueOf } from '../helper-types'

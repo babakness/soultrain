@@ -1,4 +1,5 @@
 /** @module array/headTuple.ts */
+
 import { BasicTypes, Literal, ValueAt } from '../helper-types'
 /**
  * Return first item in array, specifically tuned for literal tuples

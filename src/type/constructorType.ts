@@ -1,4 +1,5 @@
 /** @module type/constructorType.ts */
+
 import {type} from './type'
 
 /**

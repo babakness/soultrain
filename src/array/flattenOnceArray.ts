@@ -1,4 +1,5 @@
 /** @module array/flattenOnceArray.ts */
+
 import { BasicTypes, FlattenArray, FlattenOnce, Omit } from '../helper-types'
 /**
  * Flattens an array by one level.

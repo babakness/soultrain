@@ -1,4 +1,5 @@
 /** @module array/sumArray.ts */
+
 /**
  * Takes an array of number and returns the sum value
  * @param arr array to sum values of

@@ -1,3 +1,5 @@
+/** @module array/groupBy.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 import { Maybe } from '../maybe'
 import { safeProp } from '../maybe-functions'

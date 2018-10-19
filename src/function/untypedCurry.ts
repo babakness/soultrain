@@ -1,4 +1,5 @@
 /** @module function/untypedCurry.ts */
+
 import { AnyFunction } from '../helper-types'
 
 /**

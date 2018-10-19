@@ -1,5 +1,6 @@
 /** @module array/partition.ts */
 
+
 import { untypedCurry } from '../function'
 import { Predicate } from '../helper-types'
 import { pushArray } from './pushArray'

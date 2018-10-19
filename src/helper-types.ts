@@ -1,4 +1,5 @@
 /** @module helper-types.ts */
+
 // import {IsFinite} from 'typescript-tuple'
 
 export enum adtn {

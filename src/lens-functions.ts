@@ -1,4 +1,5 @@
 /** @module lens-functions.ts */
+
 import { last } from './array/last'
 import { pipeline } from './function/pipeline'
 import { untypedCurry } from './function/untypedCurry'

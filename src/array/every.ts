@@ -1,4 +1,5 @@
 /** @module array/every.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 import { Transduce } from '../transduce'
 /**

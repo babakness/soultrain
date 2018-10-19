@@ -1,4 +1,5 @@
 /** @module array/arrayItemsMeetPredicate.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 import { Predicate2 } from '../helper-types'
 // tslint:disable-next-line:variable-name

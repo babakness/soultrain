@@ -1,4 +1,5 @@
 /** @module function/complementCurry.ts */
+
 import { Complement, Curried2, Curried3, Curried4, Curried5, Curried6, Curried7, Curried8, Curried9, Function1, Function2, Function3, Function4, Function5, Function6, Function7, Function8, Function9, Function_21, Function_211, Function_2111, Function_31, Function_311, Function_41, Function_51, Function_61 } from '../helper-types'
 import { defineFunctionProperties } from './defineFunctionProperties'
 /**

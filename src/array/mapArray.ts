@@ -1,4 +1,5 @@
 /** @module array/mapArray.ts */
+
 import { times } from '../flow'
 import { untypedCurry } from '../function/untypedCurry'
 import { Equals } from '../helper-types'

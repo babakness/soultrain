@@ -1,4 +1,5 @@
 /** @module function/flip.ts */
+
 import { Curried as FlipCurried, Curried2, Function2} from '../helper-types'
 import { untypedCurry } from './untypedCurry'
 /**

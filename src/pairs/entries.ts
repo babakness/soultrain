@@ -1,4 +1,5 @@
 /** @module pairs/entries.ts */
+
 import { IsArray, ValueOf } from '../helper-types'
 
 export type ObjectTypeProps<T> = T extends any ? keyof T : never

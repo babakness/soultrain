@@ -1,4 +1,5 @@
 /** @module type/staticType.ts */
+
 /**
  * A function for use with TypeScript to validate input types.
  * Function takes a given type for A and returns an identity function

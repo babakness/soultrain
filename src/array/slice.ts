@@ -1,4 +1,5 @@
 /** @module array/slice.ts */
+
 import { untypedCurry } from '../function'
 
 interface SliceCurried {

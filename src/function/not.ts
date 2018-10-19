@@ -1,4 +1,5 @@
 /** @module function/not.ts */
+
 import { Complement } from '../helper-types'
 
 /**

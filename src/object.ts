@@ -1,4 +1,5 @@
 /** @module object.ts */
+
 import { curry } from './function/curry'
 import { untypedCurry } from './function/untypedCurry'
 import { KeyTypes, Unpacked, ValueOf} from './helper-types'

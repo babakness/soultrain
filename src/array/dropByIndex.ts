@@ -1,4 +1,5 @@
 /** @module array/dropByIndex.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 interface DropPossibleCurried {
   <A>( index: number, arr: A[] ): A[]

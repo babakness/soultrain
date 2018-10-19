@@ -1,4 +1,5 @@
 /** @module array/reverse.ts */
+
 import { IsFinite, Reverse } from '../helper-types'
 
 /**

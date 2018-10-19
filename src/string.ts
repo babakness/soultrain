@@ -1,4 +1,5 @@
 /** @module string.ts */
+
 import { curry } from './function/curry'
 /**
  * Takes a regex pattern p and source string s and returns boolean indicating if s matches p

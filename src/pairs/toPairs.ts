@@ -1,4 +1,5 @@
 /** @module pairs/toPairs.ts */
+
 import { IsArray, ValueOf } from '../helper-types'
 import { ObjectTypeProps } from './entries'
 import { toIterablePair } from './toIterablePair'

@@ -1,4 +1,5 @@
 /** @module lens.ts */
+
 import { HKT, Type, URI2HKT3, URIS} from 'fp-ts/lib/HKT'
 import { head } from './array/head'
 import { init } from './array/init'

@@ -1,4 +1,5 @@
 /** @module array/chunk.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 // tslint:disable-next-line:variable-name
 const _chunk = untypedCurry( ( n: number, arr: any[] ) => !arr.length

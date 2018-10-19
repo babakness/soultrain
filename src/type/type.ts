@@ -1,4 +1,5 @@
 /** @module type/type.ts */
+
 /**
  * Returns the string value of the primative object given.
  * @param obj object to inspect primative type of

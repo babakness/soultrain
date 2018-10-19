@@ -1,4 +1,5 @@
 /** @module transduce.ts */
+
 import { HKT, Type, URI2HKT, URIS } from 'fp-ts/lib/HKT'
 import {
   Applicative,

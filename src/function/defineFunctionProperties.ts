@@ -1,4 +1,5 @@
 /** @module function/defineFunctionProperties.ts */
+
 import { define } from './define'
 
 // Copied to prevent further depedencies, may not be up to date. For limited use case below.

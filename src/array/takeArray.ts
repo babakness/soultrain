@@ -1,4 +1,5 @@
 /** @module array/takeArray.ts */
+
 import { untypedCurry } from '../function'
 
 /**

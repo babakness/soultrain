@@ -1,4 +1,5 @@
 /** @module function/bindToInstance.ts */
+
 import { AnyFunction, FunctionPropertyNames, ObjectPropertyNamesByType } from '../helper-types'
 import { untypedCurry } from './untypedCurry'
 /**

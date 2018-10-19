@@ -1,4 +1,5 @@
 /** @module flow.ts */
+
 import { complement } from './function/complement'
 import { curry } from './function/curry'
 import { untypedCurry } from './function/untypedCurry'

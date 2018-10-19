@@ -1,4 +1,5 @@
 /** @module function/always.ts */
+
 import { untypedCurry } from './untypedCurry'
 
 /**

@@ -1,4 +1,5 @@
 /** @module function/pipeline.ts */
+
 import { head } from '../array/head'
 import { headTuple } from '../array/headTuple'
 import { last } from '../array/last'

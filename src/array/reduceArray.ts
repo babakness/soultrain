@@ -1,4 +1,5 @@
 /** @module array/reduceArray.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 interface ReduceArrayCurried<A, V> {
   ( initialValue: V, arr: A[] ): V

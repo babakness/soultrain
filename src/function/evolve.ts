@@ -1,4 +1,5 @@
 /** @module function/evolve.ts */
+
 import { Evolve, EvolveRecursive } from '../evolve-type'
 import { untypedCurry } from './untypedCurry'
 const _evolve = ( fno: {}, dao: {} ) => Object.entries( dao ).reduce( ( acc, [ key, val ] ) => type( fno[ key ] ) !== 'Function'

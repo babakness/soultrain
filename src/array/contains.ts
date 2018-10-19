@@ -1,4 +1,5 @@
 /** @module array/contains.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 /**
  * Predicate returns true if array contains specified item

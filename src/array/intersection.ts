@@ -1,4 +1,5 @@
 /** @module array/intersection.ts */
+
 import { complement, pipe, untypedCurry } from '../function'
 import { filter } from '../functor-helpers'
 import { FlattenOnce} from '../helper-types'

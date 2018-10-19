@@ -1,4 +1,5 @@
 /** @module logging.ts */
+
 import { K, S } from './combinators'
 import { untypedCurry } from './function/untypedCurry'
 import { pluckObj } from './object'

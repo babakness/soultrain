@@ -1,4 +1,5 @@
 /** @module array/head.ts */
+
 import { BasicTypes, Head, IsArray, Literal, ValueAt, WidenType } from '../helper-types'
 /**
  * Return first item in array

@@ -1,4 +1,5 @@
 /** @module function/compose.ts */
+
 import { head } from '../array/head'
 import { tail } from '../array/tail'
 import { ExtractFunctionArguments, ExtractFunctionReturnValue } from '../helper-types'

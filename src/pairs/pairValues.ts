@@ -1,4 +1,5 @@
 /** @module pairs/pairValues.ts */
+
 /**
  * Takes a tuple pair and returns the second values in an array
  * @param entries array of tuples

@@ -1,4 +1,5 @@
 /** @module array/foldArray.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 export interface FoldArrayCurried<A, V> {
   ( fn: ( acc: V, item: A ) => V ): ( arr: A[] ) => V

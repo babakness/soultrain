@@ -1,4 +1,5 @@
 /** @module array/init.ts */
+
 import { Init } from '../helper-types'
 /**
  * Get the items of array before the last item

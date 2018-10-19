@@ -1,4 +1,5 @@
 /** @module function/identity.ts */
+
 /**
  * Identity, returns same object given
  * @example

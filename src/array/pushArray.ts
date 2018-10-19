@@ -1,4 +1,5 @@
 /** @module array/pushArray.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 import { Append, ValueOf } from '../helper-types'
 /**

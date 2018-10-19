@@ -1,4 +1,5 @@
 /** @module array/joinArray.ts */
+
 import { untypedCurry } from '../function'
 /**
  * Joins item in an array on a string

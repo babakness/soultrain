@@ -1,4 +1,5 @@
 /** @module function/index.ts */
+
 // AUTOMATED FILE. DO NOT EDIT.
 export * from './untypedCurry'
 export * from './pipeline'

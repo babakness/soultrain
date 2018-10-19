@@ -1,4 +1,5 @@
 /** @module placeholder.ts */
+
 import {HKT} from 'fp-ts/lib/HKT'
 import { untypedCurry } from './function/untypedCurry'
 export class Placeholder {}

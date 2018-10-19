@@ -1,4 +1,5 @@
 /** @module array/unique.ts */
+
 import { BasicTypes, Literal, Unique } from '../helper-types'
 import { appendUnique } from './appendUnique'
 /**

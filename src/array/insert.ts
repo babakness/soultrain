@@ -1,4 +1,5 @@
 /** @module array/insert.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 interface PushIndexPossibleCurried {
   <A, B>( arr: A[], value: B ): Array<A | B>

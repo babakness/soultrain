@@ -1,4 +1,5 @@
 /** @module array/toArray.ts */
+
 import { mapIterable } from '../iterables'
 /**
  * Takes an iterable and returns an array

@@ -1,4 +1,5 @@
 /** @module array/last.ts */
+
 import { Last, Reverse } from '../helper-types'
 
 /**

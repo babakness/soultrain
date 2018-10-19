@@ -1,4 +1,5 @@
 /** @module pairs/toIterablePair.ts */
+
 import { isMapOrSet } from '../type/isMapOrSet'
 import { entries } from './entries'
 export function toIterablePair<A extends Map<any, any>>( obj: A ): IterableIterator<[A extends Map<infer K, any> ? K : never, A extends Map<any, infer V> ? V : never]>

@@ -1,4 +1,5 @@
 /** @module array/flattenArray.ts */
+
 import { BasicTypes, DeepFlattenNoInfinite, FlattenType } from '../helper-types'
 
 /**

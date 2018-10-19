@@ -1,4 +1,5 @@
 /** @module pairs/fromOnePair.ts */
+
 import { curry } from '../function/curry'
 /**
  * Takes a single key-value pair array and returns an object

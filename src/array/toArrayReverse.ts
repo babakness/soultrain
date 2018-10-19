@@ -1,4 +1,5 @@
 /** @module array/toArrayReverse.ts */
+
 import { pipeline } from '../function/pipeline'
 import { reverse } from './reverse'
 import { toArray } from './toArray'

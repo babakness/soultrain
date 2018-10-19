@@ -1,4 +1,5 @@
 /** @module combinators.ts */
+
 /* tslint:disable */
 export const I = <A >( x: A ): A => x
 export const K = <A>( x: A ) => ( y: any ): A => x

@@ -1,4 +1,5 @@
 /** @module array/remove.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 
 interface RemovePossibleCurried {

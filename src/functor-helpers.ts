@@ -1,4 +1,5 @@
 /** @module functor-helpers.ts */
+
 import { HKT, Type, URIS } from 'fp-ts/lib/HKT'
 import { pushArray } from './array/pushArray'
 import { unshiftArray } from './array/unshiftArray'

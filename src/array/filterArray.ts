@@ -1,4 +1,5 @@
 /** @module array/filterArray.ts */
+
 import { untypedCurry } from '../function'
 import { Predicate } from '../helper-types'
 

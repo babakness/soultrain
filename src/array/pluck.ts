@@ -1,4 +1,5 @@
 /** @module array/pluck.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 /**
  * Takes an key (or index) and an array of arrays or objects and returns

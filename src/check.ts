@@ -1,4 +1,5 @@
 /** @module check.ts */
+
 import { complement } from './function/complement'
 /**
  * Takes value and returns boolean with true signifying type is null, undefined, or NaN.

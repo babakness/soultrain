@@ -1,4 +1,5 @@
 /** @module array/toTuple.ts */
+
 import { untypedCurry } from '../function/untypedCurry'
 /**
  * Takes two parameters (curried) and returns an array pair containing one of each item

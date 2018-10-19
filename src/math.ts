@@ -1,4 +1,5 @@
 /** @module math.ts */
+
 import { curry } from './function/curry'
 import { untypedCurry } from './function/untypedCurry'
 /**

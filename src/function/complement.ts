@@ -1,4 +1,5 @@
 /** @module function/complement.ts */
+
 /**
  * Take a function, then its arguements, then return the boolean opposite of said function
  * :: (...args) -> (fn) -> boolean

@@ -1,4 +1,5 @@
 /** @module evolve-type.ts */
+
 import { AnyFunction, AnyObject, ContainsAny, ContainsType, ExtractFunctionArguments, ExtractFunctionReturnValue, IsAny, KeySubset } from './helper-types'
 type Evolve10<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
   'evaluate': ContainsType<[E, I], {}> extends true

@@ -1,4 +1,5 @@
 /** @module maybe-functions.ts */
+
 import { head } from './array/head'
 import { init } from './array/init'
 import { last } from './array/last'

@@ -1,4 +1,5 @@
 /** @module array/drop.ts */
+
 import { remove } from './remove'
 
 interface Drop {
