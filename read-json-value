@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-const fs = require('fs').promises
-require('./lib/function.js')
-const args = process.argv.slice(2,process.argv.length)
+// tslint:disable-next-line:no-var-requires
+const fs = require( 'fs' ).promises
+// tslint:disable-next-line:no-var-requires
+require( './lib/function.js' )
+const args = process.argv.slice( 2, process.argv.length )
 
-fs.readFile( './tsconfig-es.json')
+fs.readFile( './tsconfig-es.json' )

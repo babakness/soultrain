@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 shouldModify(){
   local firstline=$(head -n 1 $1)                     
-  [[ ! "$firstline" =~ \/[*]{2,}[[:blank:]]+@module[[:blank:]]+[a-zA-Z0-9_\.\/]+[[:blank:]]+[*]{1,}\/ ]]
+  [[ ! "$firstline" =~ \/[*]{2,}[[:blank:]]+@module[[:blank:]]+[a-zA-Z0-9_\.\/]+ ]]
+  # [[ ! "$firstline" =~ \/[*]{2,}[[:blank:]]+@module[[:blank:]]+[a-zA-Z0-9_\.\/]+[[:blank:]]+[*]{1,}\/ ]]
 }
 
 appendToFile(){
   local file=$1
   local text=$2
-  echo -e "$text\n" > "$file-temp"
+  echo -e "$text" > "$file-temp"
   cat $file >> "$file-temp"
   mv "$file-temp" $file
 }

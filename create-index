@@ -13,4 +13,4 @@ done;
 
 # [ -f "$path/index.ts" ] && mv "$path/index.ts" "../index-$time.ts"
 # [ -f "$path/index.ts" ] && echo "Please remove the current index.ts" && exit 1
-printf "// AUTOMATED FILE. DO NOT EDIT. \n$final" > "$path/index.ts"
+echo -e "// AUTOMATED FILE. DO NOT EDIT. \n$final" > "$path/index.ts"
