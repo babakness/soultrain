@@ -1,0 +1,1 @@
+/** @module pairs/index.ts */

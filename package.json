@@ -9,7 +9,8 @@
     "test-watch": "npm run test -- --watch --pretty",
     "build": "tsc",
     "prepare": "tsc",
-    "dev": "tsc --watch --pretty"
+    "dev": "tsc --project tsconfig.json --watch --pretty",
+    "build-es": "tsc --project tsconfig-es.json && prepend-jsdoc-module-name"
   },
   "ava": {
     "compileEnhancements": false,
@@ -28,9 +29,12 @@
     "ts-node": "^7.0.0",
     "tsc": "^1.20150623.0",
     "tsc-node": "^0.0.3",
-    "typescript": "^3.0.0"
+    "tslint": "^5.11.0",
+    "tslint-eslint-rules": "^5.4.0"
   },
   "dependencies": {
-    "fp-ts": "^1.7.0"
+    "fp-ts": "^1.7.0",
+    "typescript": "^3.1.1",
+    "typescript-tuple": "^1.7.3"
   }
 }

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+shouldModify(){
+  local firstline=$(head -n 1 $1)                     
+  [[ ! "$firstline" =~ \/[*]{2,}[[:blank:]]+@module[[:blank:]]+[a-zA-Z0-9_\.\/]+[[:blank:]]+[*]{1,}\/ ]]
+}
+
+appendToFile(){
+  local file=$1
+  local text=$2
+  printf "$text\n$(cat $file)" > $file
+}
+
+files=$(find $1 -type f)
+
+for f in $files; 
+do 
+  if shouldModify $f;
+  then
+    remove="$1/"
+    moduleName=$(echo "${f//$remove}")
+    moduleFull="/** @module $moduleName */"
+    appendToFile "$f" "$moduleFull"
+  fi
+done;

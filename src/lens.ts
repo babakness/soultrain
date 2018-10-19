@@ -1,596 +1,228 @@
-import {assign, assoc, getPathValue} from './object'
-import { times } from './flow';
-import { splitAt, head, last, init } from './array';
-import { identity, curry, untypedCurry, pipeline, pipe, compose, defineFunctionProperties } from './function';
-import { trace, traceWithLabel } from './logging';
-import {HKT, URIS, Type, URI2HKT2} from 'fp-ts/lib/HKT'
-import { isNullable, isFunction } from './check';
-import { nothing, Maybe } from './maybe';
-import { dec } from './math';
+/** @module lens.ts */
+import { HKT, Type, URI2HKT3, URIS} from 'fp-ts/lib/HKT'
+import { head } from './array/head'
+import { init } from './array/init'
+import { last } from './array/last'
+import { isFunction } from './check'
+import { defineFunctionProperties } from './function/defineFunctionProperties'
+import { pipeline } from './function/pipeline'
+import { untypedCurry } from './function/untypedCurry'
+import { Omit } from './helper-types'
+import { DELETE, lens } from './lens-functions'
+// import { trace } from './logging'
+import { getPathValue } from './object'
 
-
-
-
-const doDeepCopyOnBranch = node => 
-           node instanceof Object 
-    &&  !( node instanceof Date ) 
-    &&  !( node instanceof String ) 
-    &&  !( node instanceof Function )
-
-const mapObject = (fn, obj): any[] => {
-  let arr: any[] = []
-  for(let prop in obj) {
-    if(obj.hasOwnProperty(prop)) {
-      arr.push(fn(prop,obj[prop],obj))
-    }
-  }
-  return arr
+type Path = Array<string | number | symbol>
+type ProgramHead<Y, V, A> = [ Path, A ]
+type ChainingFn<Y, V, U, L, A, B> = ( data: Y ) => ( pathValue: A ) => Lens<Y, V, U, L, B>
+type MappingFn<Y, A, B> = ( data: Y ) => ( pathValue: A ) => B
+type MapOrChainFn<Y, V, U, L, A, B> = ChainingFn<Y, V, U, L, A, B> | MappingFn<Y, A, B>
+interface Programs<Y, V, U, L, A> extends Array<any> {
+  [index: number]: ( ProgramHead<Y, V, A> | ChainingFn<Y, V, U, L, A, A> | MappingFn<V, A, A> )
+  0: ProgramHead<Y, V, A>
 }
 
-export const DELETE: unique symbol = Symbol() 
-
-const traceType = a => (console.log(typeof a,a),a)
-const shouldUpdate = (level,key,path) => level === dec(path.length) && key === String(last(path))
-const dangerouslyMutateObjValue = (key,value,obj) =>  (obj[key] = value,obj)
-
-export const _lens = ( path: any[], fn, defaultValue, source, level=0 ) => 
-  mapObject(
-    ( key, node ) =>
-      ( !doDeepCopyOnBranch( node ) ) //|| path.indexOf(key) !== level)
-        // don't deep copy if not object, array, or in path
-        ? [ key, node ]
-        // deep copy, not particularly optimized recurssion
-        : String( path[ level ] ) !== String( key )
-          ? [ key, node ] 
-          : [ key, _lens( path, fn, defaultValue, node ,level+1 )],
-    source
-  )
-  .reduce( 
-    ( acc, [ key, value ] , index) => 
-      !shouldUpdate( level, key, path )
-        // if not the last value in the lens path, mutated accumletator
-        ? dangerouslyMutateObjValue( key, value, acc )
-        // otherwise, computed the new value and only mutated accumelator with the value 
-        // if the request to delete the node by returning the DELETE type isn't sent.
-        : pipeline( 
-            value == null 
-              ? typeof defaultValue === 'undefined'
-                ? value
-                : defaultValue
-              : fn( value ),
-            computedValue => computedValue === DELETE 
-              ? acc 
-              : dangerouslyMutateObjValue( key, computedValue, acc )
-          ),
-    source instanceof Array ? [] : {}
-  )
-
-const _curriedLens = untypedCurry((path, fn, defaultValue, source) => _lens(path, fn, defaultValue, source,))
-
-export function lens<L,K1 extends keyof L, D extends L[K1],A>(path: [K1], fn: (pathData: D) => A, defaultValue: A, source: L) : L 
-export function lens<L,K1 extends keyof L, K2 extends keyof L[K1], D extends L[K1][K2],A>(path: [K1,K2], fn: (pathData: D) => A, defaultValue: A, source: L) : L 
-export function lens<L,K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2],  D extends L[K1][K2][K3],A>(path: [K1,K2,K3], fn: (pathData: D) => A, defaultValue: A, source: L) : L 
-export function lens<L,K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2],  K4 extends keyof L[K1][K2][K3], D extends L[K1][K2][K3][K4],A>(path: [K1,K2,K3,K4], fn: (pathData: D) => A, defaultValue: A, source: L) : L 
-export function lens<L,K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2],  K4 extends keyof L[K1][K2][K3],  K5 extends keyof L[K1][K2][K3][K4], D extends L[K1][K2][K3][K4][K5],A>(path: [K1,K2,K3,K4,K5], fn: (pathData: D) => A, defaultValue: A, source: L) : L 
-export function lens<L,K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2],  K4 extends keyof L[K1][K2][K3],  K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], D extends L[K1][K2][K3][K4][K5][K6],A>(path: [K1,K2,K3,K4,K5,K6], fn: (pathData: D) => A, defaultValue: A, source: L) : L 
-export function lens<L,K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2],  K4 extends keyof L[K1][K2][K3],  K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], D extends L[K1][K2][K3][K4][K5][K6][K7],A>(path: [K1,K2,K3,K4,K5,K6,K7], fn: (pathData: D) => A, defaultValue: A, source: L) : L 
-export function lens<L,K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2],  K4 extends keyof L[K1][K2][K3],  K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], D extends L[K1][K2][K3][K4][K5][K6][K7][K8],A>(path: [K1,K2,K3,K4,K5,K6,K7,K8], fn: (pathData: D) => A, defaultValue: A, source: L) : L 
-export function lens<L,K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2],  K4 extends keyof L[K1][K2][K3],  K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8], D extends L[K1][K2][K3][K4][K5][K6][K7][K8][K9],A>(path: [K1,K2,K3,K4,K5,K6,K7,K8,K9], fn: (pathData: D) => A, defaultValue: A, source: L) : L 
-export function lens<L,K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2],  K4 extends keyof L[K1][K2][K3],  K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8], K10 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8][K9], D extends L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10],A>(path: [K1,K2,K3,K4,K5,K6,K7,K8,K9,K10], fn: (pathData: D) => A, defaultValue: A, source: L) : L 
-export function lens<P,PK extends keyof P, D, A,L>(path: P[], fn: (pathData: D) => A, defaultValue: A) : ( source: L) => L
-export function lens<P,PK extends keyof P, D, A,L>(path: P[], fn: (pathData: D) => A) : (defaultValue: A) => ( source: L) => L
-export function lens<P,PK extends keyof P, D, A,L>(path: P[]) : <B extends A>(fn: (pathData: D) => B) => (defaultValue: B) => ( source: L) => L
-export function lens(...args)
-{
-  return _curriedLens(...args)
-} 
-
-
-
-function _foldAndRead(this: Lens3<{},{}>, defaultValue,data) {
-  return pipeline(
-    lens( this.path , this.run( [ defaultValue, data ] ), defaultValue, data ),
-    processedData => [processedData, getPathValue(this.path,processedData), getPathValue(this.path,data)]
-  )  
-}
-
-function _fold(this: Lens3<{},{}>, defaultValue,data) {
-  return lens( this.path , this.run( [ defaultValue, data ] ), defaultValue, data )
-}
-
-function _read(this: Lens3<{},{}>, defaultValue, data ) {
-  return getPathValue(
-    this.path,
-    lens( this.path , this.run( [ defaultValue, data ] ), defaultValue, data )
-  )
-}
-
-function _write(this: Lens3<{},{}>, value, data ) {
-  return lens( this.path , ( [ defaultValue, data ] ) => value , value, data )
-}
-
-export class Lens3<L,A>  {
-  readonly _A!: A
-  readonly _L!: L
-  readonly _URI!: 'babakness/lens'
-  static readonly _URI: 'babakness/lens'
-  constructor(readonly path, readonly run = a => b => b) {}
-
-  static type<A>(){
-    return new Lens3<A,{}>(undefined)
-  }
-
-  //(method) Lens<L, A>.of<A>(path: A): Lens<{}, {}>
-
-  static of<A>(path:A | undefined | null): Lens3<{}, NonNullable<A>> {
-    return new Lens3(path)
-  }
-
-  of<K1 extends keyof L>(path: [K1]): Lens3<L,NonNullable<L[K1]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1]>(path:  [K1,K2] ): Lens3<L,NonNullable<L[K1][K2]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2]>( path: [K1, K2, K3] ): Lens3<L,NonNullable<L[K1][K2][K3]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3]>( path:  [K1, K2, K3, K4] ): Lens3<L,NonNullable<L[K1][K2][K3][K4]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4]>(  path:  [K1, K2, K3, K4, K5] ): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5]>( path:  [K1, K2, K3, K4, K5, K6]): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5][K6]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6]>(  path:  [K1, K2, K3, K4, K5, K6, K7] ): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7]>( path: [K1, K2, K3, K4, K5, K6, K7, K8] ): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8]>( path: [K1, K2, K3, K4, K5, K6, K7, K8, K9]): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8], K10 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>( path: [K1, K2, K3, K4, K5, K6, K7, K8, K9, K10] ): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>>
-  of(path): any
-  {
-    return new Lens3(path)
-  }
-
-  from<K1 extends keyof L>(...path: [K1]): Lens3<L,NonNullable<L[K1]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1]>(...path:  [K1,K2] ): Lens3<L,NonNullable<L[K1][K2]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2]>( ...path: [K1, K2, K3] ): Lens3<L,NonNullable<L[K1][K2][K3]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3]>( ...path:  [K1, K2, K3, K4] ): Lens3<L,NonNullable<L[K1][K2][K3][K4]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4]>(  ...path:  [K1, K2, K3, K4, K5] ): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5]>( ...path:  [K1, K2, K3, K4, K5, K6]): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5][K6]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6]>(  ...path:  [K1, K2, K3, K4, K5, K6, K7] ): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7]>( ...path: [K1, K2, K3, K4, K5, K6, K7, K8] ): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8]>( ...path: [K1, K2, K3, K4, K5, K6, K7, K8, K9]): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8], K10 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>( ...path: [K1, K2, K3, K4, K5, K6, K7, K8, K9, K10] ): Lens3<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>>
-  from(...path): any
-  {
-    return new Lens3(path)
-  }
-
-
-  map<B>(fn: (pathValue: A) => B): Lens3<L,B> {
-    return new Lens3<L,B>(this.path, ([defaultValue,data]: [A | B,L]) => (pathValue:A) => fn(this.run([defaultValue,data])(pathValue)) )
-  }
-
-  // given time constraints, could not effectively workout making this Foldable Functor a Monad.
-  // chain<B>(fn: (pathValue: A) => Lens<L,B>): Lens<L,B> {
-  //   // return new Lens<L,B>(this.path, (pathValue:A) => fn(this.run(pathValue)).run(pathValue) )
-  //   return new Lens<L,B>(fn(undefined as any).path, ([defaultValue,data]) => (pathValue) => {
-  //     const calculatedData = lens(this.path,this.run([defaultValue,data]),defaultValue,data)
-  //     console.log(this.path,calculatedData)
-  //     return 9999 // returns the pathvalue of next iteration
-  //   } )
-  // }
-
-  // not sure, not implementing given time constraint
-  // ap<B>(fab: Lens<{}, (pathValue: A) => B>): Lens<L,B> {
-  //   return new Lens<L,B>(this.path, (pathValue:A) => fab.run(pathValue).run(pathValue))
-  // }
-
-  preRead<Data extends L, Default extends A>(data: Data) : A {
-    return getPathValue(this.path,data) as any as A
-  }
-
-  read<Data extends L, Default extends A>(defaultValue: Default) : (data: Data) => A 
-  read<Data extends L, Default extends A>(defaultValue: Default, data: Data) : A 
-  read(...args)
-  {
-    return untypedCurry(_read.bind(this))(...args)
-  }
-
-  write<Data extends L, Default extends A | typeof DELETE>(writeValue: Default) : (data: Data ) => L 
-  write<Data extends L, Default extends A | typeof DELETE>(writeValue: Default, data: Data ) : L 
-  write(...args){
-    return untypedCurry(_write.bind(this))(...args)
-  }
-
-  fold<Data extends L, Default extends A | typeof DELETE>(defaultValue: Default) : (data: Data ) => L 
-  fold<Data extends L, Default extends A | typeof DELETE>(defaultValue: Default, data: Data ) : L 
-  fold(...args){
-    return untypedCurry(_fold.bind(this))(...args)
-  }
-
-  foldAndRead<Data extends L, Default extends A | typeof DELETE>(defaultValue: Default) : (data: Data ) => [L,A,A] 
-  foldAndRead<Data extends L, Default extends A | typeof DELETE>(defaultValue: Default, data: Data ) : [L,A,A] 
-  foldAndRead(...args) {
-    return untypedCurry(_foldAndRead.bind(this))(...args)
-  }
-  // not needed
-  // mapUnlessNullable<B>(fn: (pathValue: A) => B): Lens<L,B> {
-  //   return new Lens<L,B>(this.path, (pathValue:A) => isNullable(pathValue) ? pathValue : fn(this.run(pathValue)) )
-  // }
-
-}
-
-
-
-export class Lens<L,A>  {
-  readonly _A!: A
-  readonly _L!: L
-  readonly _URI!: 'babakness/lens'
+type PathValue<V> =  NonNullable<V> // | typeof UNCHANGED | typeof DELETE
+export class Lens<Y, V, U, L, A>  {
   static readonly _URI: 'babakness/lens'
 
-  constructor( readonly pathAndDefaultValue, readonly run = a => b => b) {
-    
+  static type<Y, V = Y>() {
+    return new Lens<Y, V, {}, {}, {}>( [] as any )
   }
 
-  static type<A>(){
-    return new Lens<A,{}>(undefined)
+  static typeChange<V, U>() {
+    return new Lens<V, U, {}, {}, {}>( [] as any )
   }
 
-  //(method) Lens2<L, A>.of<A>(pathAndDefaultValue: A): Lens2<{}, {}>
+  // static of<U, L = U, K1 extends keyof U & keyof L = keyof U & keyof L>( pathAndDefaultValue: [ [K1] , typeof DELETE]): Lens<U,Optional<L,K1>,PathValue<L[K1]> | undefined>
+  static of<Y, V = Y, K1 extends keyof Y & keyof V = keyof Y & keyof V>( pathAndDefaultValue: [[K1]  , PathValue<V[K1]>] ): Lens<Y, V, PathValue<Y[K1]>, PathValue<V[K1]>, PathValue<Y[K1]>>
+  static of<Y, V = Y, K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1]>( pathAndDefaultValue: [ [K1, K2]  , PathValue<V[K1][K2]>] ): Lens<Y, V, PathValue<Y[K1][K2]>, PathValue<V[K1][K2]>, PathValue<Y[K1][K2]>>
+  static of<Y, V = Y, K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2]>( pathAndDefaultValue: [[K1, K2, K3]  , PathValue<V[K1][K2][K3]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3]>, PathValue<V[K1][K2][K3]>, PathValue<Y[K1][K2][K3]>>
+  static of<Y, V = Y, K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] >( pathAndDefaultValue: [ [K1, K2, K3, K4]  , PathValue<V[K1][K2][K3][K4]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4]>, PathValue<V[K1][K2][K3][K4]>, PathValue<Y[K1][K2][K3][K4]>>
+  static of<Y, V = Y, K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] >( pathAndDefaultValue: [ [K1, K2, K3, K4, K5]  , PathValue<V[K1][K2][K3][K4][K5]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5]>, PathValue<V[K1][K2][K3][K4][K5]>, PathValue<Y[K1][K2][K3][K4][K5]>>
+  static of<Y, V = Y, K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] , K6 extends keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5] = keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5]>( pathAndDefaultValue: [ [K1, K2, K3, K4, K5, K6]  , PathValue<V[K1][K2][K3][K4][K5][K6]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5][K6]>, PathValue<V[K1][K2][K3][K4][K5][K6]>, PathValue<Y[K1][K2][K3][K4][K5][K6]>>
+  static of<Y, V = Y, K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] , K6 extends keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5] = keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5], K7 extends keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6] = keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6]>( pathAndDefaultValue: [ [K1, K2, K3, K4, K5, K6, K7]  , PathValue<V[K1][K2][K3][K4][K5][K6][K7]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5][K6][K7]>, PathValue<V[K1][K2][K3][K4][K5][K6][K7]>, PathValue<Y[K1][K2][K3][K4][K5][K6][K7]>>
+  static of<Y, V = Y, K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] , K6 extends keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5] = keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5], K7 extends keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6] = keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6], K8 extends keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7] = keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8]  , PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8]>, PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8]>, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8]>>
+  static of<Y, V = Y, K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] , K6 extends keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5] = keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5], K7 extends keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6] = keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6], K8 extends keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7] = keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof Y[K1][K2][K3][K4][K5][K6][K7][K8] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8] = keyof Y[K1][K2][K3][K4][K5][K6][K7][K8] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8, K9]  , PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8][K9]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8][K9]>, PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8][K9]>, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8][K9]>>
+  static of<Y, V = Y, K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] , K6 extends keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5] = keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5], K7 extends keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6] = keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6], K8 extends keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7] = keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof Y[K1][K2][K3][K4][K5][K6][K7][K8] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8] = keyof Y[K1][K2][K3][K4][K5][K6][K7][K8] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8], K10 extends keyof Y[K1][K2][K3][K4][K5][K6][K7][K8][K9] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8][K9] = keyof Y[K1][K2][K3][K4][K5][K6][K7][K8][K9] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8][K9]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8, K9, K10]  , PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>, PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>>
 
-  static of<A>(pathAndDefaultValue: any[][]): Lens<{}, NonNullable<A>> {
-    return new Lens(pathAndDefaultValue)
+  static of( pathAndDefaultValue ) {
+    return new Lens( [ pathAndDefaultValue ] )
   }
-
-  of<K1 extends keyof L>(pathAndDefaultValue: [[K1],NonNullable<L[K1]>]): Lens<L,NonNullable<L[K1]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1]>(pathAndDefaultValue: [ [K1,K2] ,NonNullable<L[K1][K2]>]): Lens<L,NonNullable<L[K1][K2]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2]>( pathAndDefaultValue: [[K1, K2, K3] ,NonNullable<L[K1][K2][K3]>]): Lens<L,NonNullable<L[K1][K2][K3]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3]>( pathAndDefaultValue: [ [K1, K2, K3, K4] ,NonNullable<L[K1][K2][K3][K4]>]): Lens<L,NonNullable<L[K1][K2][K3][K4]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4]>(  pathAndDefaultValue: [ [K1, K2, K3, K4, K5] ,NonNullable<L[K1][K2][K3][K4][K5]>]): Lens<L,NonNullable<L[K1][K2][K3][K4][K5]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5]>( pathAndDefaultValue: [ [K1, K2, K3, K4, K5, K6],NonNullable<L[K1][K2][K3][K4][K5][K6]>]): Lens<L,NonNullable<L[K1][K2][K3][K4][K5][K6]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6]>(  pathAndDefaultValue: [ [K1, K2, K3, K4, K5, K6, K7] ,NonNullable<L[K1][K2][K3][K4][K5][K6][K7]>]): Lens<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8] ,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8]>]): Lens<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8, K9],NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>]): Lens<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8], K10 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8, K9, K10] ,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>]): Lens<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>>
-  of( pathAndDefaultValue ): any
-  {
-    return new Lens( pathAndDefaultValue, a => b => b)
-  }
-
-  from<K1 extends keyof L>(path: [K1], defaultValue: NonNullable<L[K1]>): Lens<L,NonNullable<L[K1]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1]>(path: [K1,K2], defaultValue: NonNullable<L[K1][K2]>): Lens<L,NonNullable<L[K1][K2]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2]>( path: [K1, K2, K3], defaultValue: NonNullable<L[K1][K2][K3]>): Lens<L,NonNullable<L[K1][K2][K3]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3]>( path: [K1, K2, K3, K4], defaultValue: NonNullable<L[K1][K2][K3][K4]>): Lens<L,NonNullable<L[K1][K2][K3][K4]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4]>(  path: [K1, K2, K3, K4, K5], defaultValue: NonNullable<L[K1][K2][K3][K4][K5]>): Lens<L,NonNullable<L[K1][K2][K3][K4][K5]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5]>( path: [K1, K2, K3, K4, K5, K6], defaultValue: NonNullable<L[K1][K2][K3][K4][K5][K6]>): Lens<L,NonNullable<L[K1][K2][K3][K4][K5][K6]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6]>(  path: [K1, K2, K3, K4, K5, K6, K7], defaultValue: NonNullable<L[K1][K2][K3][K4][K5][K6][K7]>): Lens<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7]>( path: [K1, K2, K3, K4, K5, K6, K7, K8], defaultValue: NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8]>): Lens<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8]>( path: [K1, K2, K3, K4, K5, K6, K7, K8, K9], defaultValue: NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>): Lens<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8], K10 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>( path: [K1, K2, K3, K4, K5, K6, K7, K8, K9, K10], defaultValue: NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>): Lens<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>>
-  from( path, defaultValue ): any
-  {
-    return new Lens( [path, defaultValue], a => b => b )
-  }
-
-  map<B>(fn: (pathValue: A) => B): Lens<L,B> {
-    // const [path,defaultValue] = this.pathAndDefaultValue
-    // const broseph =  data => ( pathValue: A ) => fn( this.run( data )( pathValue ) )
-    return new Lens<L,B>( this.pathAndDefaultValue, data => ( pathValue: A ) => fn( this.run( data )( pathValue ) ) ) 
-  }
-
-  ap<B>(fab: Lens<L,(pathValue: A) => B> ): Lens<L,B> {
-    // const [path,defaultValue] = this.pathAndDefaultValue
-    return new Lens<L,B>( this.pathAndDefaultValue, data => (pathValue: A) => fab.map( fn => fn(pathValue)).read(data)  )
-  }
-
-  join<Data extends L>(data: Data ) : L {
-    const [ path, defaultValue ] = this.pathAndDefaultValue
-    
-    return lens( path , this.run( data  ), defaultValue, data )
-  }
-
-  fold<Data extends L, B>(data: Data, fn: (pathValue: A) => B ) : L 
-  fold<Data extends L, B>(data: Data) : (fn: (pathValue: A) => B ) => L 
-  fold(...args)
-  {
-    return untypedCurry(
-      (fn, data) => this.map(fn).join(data)
-    )(...args)
-  }
-
-  write<Data extends L, B>( writeValue: A ) : ( data: Data, ) => L 
-  write<Data extends L, B>( writeValue: A , data: Data, ) : L
-  write(...args){
-    return untypedCurry(
-      (writeValue, data) => this.fold(data, _ => writeValue)
-    )(...args) 
-  }
-
-  reduce<Data extends L, B>(fn: (pathValue: A) => B ) : ( data: Data, ) => L 
-  reduce<Data extends L, B>(fn: (pathValue: A) => B , data: Data, ) : L
-  reduce(...args)
-  {
-    return untypedCurry(
-      (fn, data) => this.map(fn).join(data)
-    )(...args) 
-  }
-
-  joinAndRead<Data extends L, B>( data: Data, ) : [L,A,A] {
-    const [path,defaultValue] = this.pathAndDefaultValue
-    const fn = a => a
-    return pipeline(
-        this.map(fn).join(data),
-        pData => [ pData, getPathValue( path, pData ), getPathValue( path, data ) ]
-      ) as [L,A,A]
-  }
-
-  reduceAndRead<Data extends L, B>(fn: (pathValue: A) => B ) : ( data: Data, ) => L 
-  reduceAndRead<Data extends L, B>(fn: (pathValue: A) => B , data: Data, ) : L
-  reduceAndRead(...args)
-  {
-    return untypedCurry(
-      (fn, data) => this.map(fn).joinAndRead(data)
-    )
-  }
-
-  read<Data extends L>( data: Data, ) : A {
-    const [path,defaultValue] = this.pathAndDefaultValue
-    return getPathValue( path, this.reduce( a => a ,data) ) as any as A
-  }
-
-  preRead<Data extends L>( data: Data, ) : A {
-    const [path,defaultValue] = this.pathAndDefaultValue
-    return getPathValue( path, data ) as any as A
-  }
-
-
-}
-
-
-
-
-
-
-export class LensExperimental<L,A>  {
-  readonly _A!: A
-  readonly _L!: L
-  readonly _URI!: 'babakness/lens'
-  static readonly _URI: 'babakness/lens'
   private static readonly chainHelperName = 'chainHelper'
-  private static readonly isComposableLensMorphism = (item): item is <E>(data:E) => (<C,D>(pathValue: C) => D ) => 
-    typeof item === 'function' 
-      && item.name !== LensExperimental.chainHelperName
-  private static readonly isChainHelper = (item): item is (<C,D>(pathValue: C) => Lens<{},D> ) => 
-  typeof item === 'function' 
-    && item.name === LensExperimental.chainHelperName
-  constructor( readonly program: any[]) {
-    
+  private static readonly isComposableLensMorphism = ( item ): item is <E>( data: E ) => ( <C, D>( pathValue: C ) => D ) =>
+    typeof item === 'function'
+      && item.name !== Lens.chainHelperName
+  readonly _A!: A
+  readonly _L!: V
+  readonly _U!: Y
+  readonly _URI!: 'babakness/lens'
+
+  constructor( readonly program: Programs<Y, V, U, L, A> ) {
+
+  }
+  // Initial Object, Final Object, Initial Type, Current Type
+  // of<K1 extends keyof Y & keyof V = keyof Y & keyof V>( this: Lens<Y,Y,{},{},{}>, pathAndDefaultValue: [ [K1] , typeof DELETE]): Lens<Y,Omit<V,K1>,PathValue<Y[K1]>,PathValue<V[K1]>,PathValue<Y[K1]>>
+  // of<K1 extends keyof U & keyof L = keyof U & keyof L>( pathAndDefaultValue: [ [K1] , typeof DELETE]): Lens<U,Optional<L,K1>,PathValue<L[K1]> | undefined>
+  of<K1 extends keyof Y & keyof V = keyof Y & keyof V>( pathAndDefaultValue: [[K1]  , PathValue<V[K1]>] ): Lens<Y, V, PathValue<Y[K1]>, PathValue<V[K1]>, PathValue<Y[K1]>>
+  // of<K1 extends keyof Y = keyof Y >( pathAndDefaultValue: [ [K1] , typeof DELETE]): Lens<Y,V,PathValue<Y[K1]>,typeof DELETE,PathValue<Y[K1]>>
+  // of<P extends Omit<V,keyof Y>,K1 extends keyof Y = keyof Y >( pathAndDefaultValue: [ [K1] , typeof DELETE]): Lens<Y,V,PathValue<Y[K1]>,typeof DELETE,PathValue<Y[K1]>>
+  of<K1 extends keyof Y = keyof Y >( pathAndDefaultValue: [ [K1] , typeof DELETE] ): Lens<Y, V extends Y ? Omit<Y, K1> : V, PathValue<Y[K1]>, typeof DELETE, PathValue<Y[K1]>>
+  // of<K1 extends keyof Y, V extends Omit<Y,K1> >( pathAndDefaultValue: [ [K1] , typeof DELETE]): Lens<Y,V,PathValue<Y[K1]>,typeof DELETE,PathValue<Y[K1]>>
+  of<K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1]>( pathAndDefaultValue: [ [K1, K2]  , PathValue<V[K1][K2]>] ): Lens<Y, V, PathValue<Y[K1][K2]>, PathValue<V[K1][K2]>, PathValue<Y[K1][K2]>>
+  of<K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2]>( pathAndDefaultValue: [[K1, K2, K3]  , PathValue<V[K1][K2][K3]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3]>, PathValue<V[K1][K2][K3]>, PathValue<Y[K1][K2][K3]>>
+  of<K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] >( pathAndDefaultValue: [ [K1, K2, K3, K4]  , PathValue<V[K1][K2][K3][K4]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4]>, PathValue<V[K1][K2][K3][K4]>, PathValue<Y[K1][K2][K3][K4]>>
+  of<K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] >( pathAndDefaultValue: [ [K1, K2, K3, K4, K5]  , PathValue<V[K1][K2][K3][K4][K5]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5]>, PathValue<V[K1][K2][K3][K4][K5]>, PathValue<Y[K1][K2][K3][K4][K5]>>
+  of<K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] , K6 extends keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5] = keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5]>( pathAndDefaultValue: [ [K1, K2, K3, K4, K5, K6]  , PathValue<V[K1][K2][K3][K4][K5][K6]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5][K6]>, PathValue<V[K1][K2][K3][K4][K5][K6]>, PathValue<Y[K1][K2][K3][K4][K5][K6]>>
+  of<K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] , K6 extends keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5] = keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5], K7 extends keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6] = keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6]>( pathAndDefaultValue: [ [K1, K2, K3, K4, K5, K6, K7]  , PathValue<V[K1][K2][K3][K4][K5][K6][K7]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5][K6][K7]>, PathValue<V[K1][K2][K3][K4][K5][K6][K7]>, PathValue<Y[K1][K2][K3][K4][K5][K6][K7]>>
+  of<K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] , K6 extends keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5] = keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5], K7 extends keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6] = keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6], K8 extends keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7] = keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8]  , PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8]>, PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8]>, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8]>>
+  of<K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] , K6 extends keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5] = keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5], K7 extends keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6] = keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6], K8 extends keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7] = keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof Y[K1][K2][K3][K4][K5][K6][K7][K8] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8] = keyof Y[K1][K2][K3][K4][K5][K6][K7][K8] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8, K9]  , PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8][K9]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8][K9]>, PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8][K9]>, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8][K9]>>
+  of<K1 extends keyof Y & keyof V = keyof Y & keyof V, K2 extends keyof Y[K1] & keyof V[K1] = keyof Y[K1] & keyof V[K1], K3 extends keyof Y[K1][K2] & keyof V[K1][K2] = keyof Y[K1][K2] & keyof V[K1][K2], K4 extends keyof Y[K1][K2][K3] & keyof V[K1][K2][K3] = keyof Y[K1][K2][K3] & keyof V[K1][K2][K3], K5 extends keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] = keyof Y[K1][K2][K3][K4] & keyof V[K1][K2][K3][K4] , K6 extends keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5] = keyof Y[K1][K2][K3][K4][K5] & keyof V[K1][K2][K3][K4][K5], K7 extends keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6] = keyof Y[K1][K2][K3][K4][K5][K6] & keyof V[K1][K2][K3][K4][K5][K6], K8 extends keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7] = keyof Y[K1][K2][K3][K4][K5][K6][K7] & keyof V[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof Y[K1][K2][K3][K4][K5][K6][K7][K8] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8] = keyof Y[K1][K2][K3][K4][K5][K6][K7][K8] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8], K10 extends keyof Y[K1][K2][K3][K4][K5][K6][K7][K8][K9] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8][K9] = keyof Y[K1][K2][K3][K4][K5][K6][K7][K8][K9] & keyof V[K1][K2][K3][K4][K5][K6][K7][K8][K9]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8, K9, K10]  , PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>] ): Lens<Y, V, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>, PathValue<V[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>, PathValue<Y[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>>
+  of( pathAndDefaultValue ): any {
+    return new Lens( [ pathAndDefaultValue ] )
+  }
+  map<B>( fn: ( pathValue: A ) => B ): Lens<Y, V, U, L, B> {
+    return new Lens<Y, V, U, L, B>( this.mapProgram( ( dataOut: Y ) => fn ) as Programs<Y, V, U, L, B> )
   }
 
-  static type<A>(){
-    return new LensExperimental<A,{}>([])
+  ap<B>( fab: Lens<Y, V, U, L, ( pathValue: A ) => B> ): Lens<Y, V, U, L, B> {
+    return new Lens<Y, V, U, L, B>(
+      this.mapProgram( ( data ) => ( pathValue ) => fab.read( data )( pathValue ) ) as Programs<Y, V, U, L, B>,
+    )
   }
 
-  static of<A>(pathAndDefaultValue: any[][]): LensExperimental<{}, NonNullable<A>> {
-    return new LensExperimental( [] )
+  chain<B>( fn: ( pathValue: A ) => Lens<Y, V, U, L, B> ): Lens<Y, V, U, L, B> {
+    return new Lens<Y, V, U, L, B>( this.chainProgram( ( data ) => fn ) as Programs<Y, V, U, L, B> )
   }
 
-  of<K1 extends keyof L>(pathAndDefaultValue: [[K1],NonNullable<L[K1]>]): LensExperimental<L,NonNullable<L[K1]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1]>(pathAndDefaultValue: [ [K1,K2] ,NonNullable<L[K1][K2]>]): LensExperimental<L,NonNullable<L[K1][K2]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2]>( pathAndDefaultValue: [[K1, K2, K3] ,NonNullable<L[K1][K2][K3]>]): LensExperimental<L,NonNullable<L[K1][K2][K3]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3]>( pathAndDefaultValue: [ [K1, K2, K3, K4] ,NonNullable<L[K1][K2][K3][K4]>]): LensExperimental<L,NonNullable<L[K1][K2][K3][K4]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4]>(  pathAndDefaultValue: [ [K1, K2, K3, K4, K5] ,NonNullable<L[K1][K2][K3][K4][K5]>]): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5]>( pathAndDefaultValue: [ [K1, K2, K3, K4, K5, K6],NonNullable<L[K1][K2][K3][K4][K5][K6]>]): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5][K6]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6]>(  pathAndDefaultValue: [ [K1, K2, K3, K4, K5, K6, K7] ,NonNullable<L[K1][K2][K3][K4][K5][K6][K7]>]): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8] ,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8]>]): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8, K9],NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>]): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>>
-  of<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8], K10 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>( pathAndDefaultValue: [[K1, K2, K3, K4, K5, K6, K7, K8, K9, K10] ,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>]): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>>
-  of( pathAndDefaultValue ): any
-  {
-    return new LensExperimental( [ pathAndDefaultValue ] )
-  }
+  join<P extends typeof DELETE>( this: Lens<Y, V, U, P, P>, dataIn: Y ): V
+  join<P>( this: Lens<Y, V, U, P, P>, dataIn: Y ): V
+  // join( dataIn: Y ): V
+  join( this: Lens<Y, V, U, L, A>, dataIn ) {
+    type Accumelator<_L, _A> =  [ _L, Path, _A ]
 
-  from<K1 extends keyof L>(path: [K1], defaultValue: NonNullable<L[K1]>): LensExperimental<L,NonNullable<L[K1]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1]>(path: [K1,K2], defaultValue: NonNullable<L[K1][K2]>): LensExperimental<L,NonNullable<L[K1][K2]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2]>( path: [K1, K2, K3], defaultValue: NonNullable<L[K1][K2][K3]>): LensExperimental<L,NonNullable<L[K1][K2][K3]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3]>( path: [K1, K2, K3, K4], defaultValue: NonNullable<L[K1][K2][K3][K4]>): LensExperimental<L,NonNullable<L[K1][K2][K3][K4]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4]>(  path: [K1, K2, K3, K4, K5], defaultValue: NonNullable<L[K1][K2][K3][K4][K5]>): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5]>( path: [K1, K2, K3, K4, K5, K6], defaultValue: NonNullable<L[K1][K2][K3][K4][K5][K6]>): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5][K6]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6]>(  path: [K1, K2, K3, K4, K5, K6, K7], defaultValue: NonNullable<L[K1][K2][K3][K4][K5][K6][K7]>): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7]>( path: [K1, K2, K3, K4, K5, K6, K7, K8], defaultValue: NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8]>): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8]>( path: [K1, K2, K3, K4, K5, K6, K7, K8, K9], defaultValue: NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>>
-  from<K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8], K10 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>( path: [K1, K2, K3, K4, K5, K6, K7, K8, K9, K10], defaultValue: NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>): LensExperimental<L,NonNullable<L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]>>
-  from( path, defaultValue ): any
-  {
-    return new LensExperimental( [ path, defaultValue ] )
-  }
-
-  map<B>(fn: (pathValue: A) => B): LensExperimental<L,B> {
-    return new LensExperimental<L,B>( this.mapProgram( (dataOut: L) => fn) ) 
-  }
-
-  private mapProgram<B>(fn: (data: L) => (pathValue: A) => B){
-    return pipeline(
-        last( this.program ),
-        lastProgram => init( this.program ).concat(
-        LensExperimental.isComposableLensMorphism( lastProgram ) 
-          ? [ (dataOut: L) => (pathValue:A) => fn( dataOut )( lastProgram( dataOut )( pathValue ))  ] 
-          : [ lastProgram, fn ]
+    const handleChain = <B>( dataOut: Y , chainHelper: ChainingFn<Y, V, U, L, A, B> , path: Path, defaultValue: A ): Accumelator<V, B> => {
+      return pipeline(
+        chainHelper( dataOut )( getPathValue( path as [keyof Y], dataOut ) as A ),
+        ( _lens ) => [ ( _lens as any ).join( dataOut ), ...head( _lens.program ) as ProgramHead<Y, V, B> ] as Accumelator<V, B>,
       )
-    )
-  }
-
-
-  ap<B>(fab: LensExperimental<L, (pathValue: A) => B> ): LensExperimental<L,B> {    
-  
-    return new LensExperimental<L,B>( 
-      this.mapProgram(  data => pathValue => fab.read(data)(pathValue) )  
-    )
-    // return fab.chain( fn => this.map( (pathValue:A) => fn(pathValue)) ) 
-  }
-
-  chain<B>(fn: (pathValue: A) => LensExperimental<L,B>): LensExperimental<L,B> {
-    return new LensExperimental<L,B>( this.chainProgram( data => fn ) ) 
-  }
-
-  private getChainHelper<B>(fn: (data: L) => (pathValue: A) => B): (data:L) => (pathValue : A) => B {
-    const that = this
-    return defineFunctionProperties(
-      function chainHelper(data){
-        return ( pathValue: A ) => fn(data)( pathValue )
-      },
-      { name: LensExperimental.chainHelperName }
-    )
-  }
-
-  private chainProgram<B>(fn: (data: L) => (pathValue: A) => B) : any[] {
-    return this.program.concat( this.getChainHelper(fn)  )
-  }
-
-  join( this: any, dataIn: L ): L {
-
-    const handleChain = (dataOut,chainHelper,_path,_default) => {
-      const newLensExperimental = chainHelper(dataOut)(getPathValue(_path as any,dataOut))
-      const [p,d] = head( newLensExperimental.program )
-      const powerData = newLensExperimental.join(dataOut)
-
-      return [powerData,p,d]
     }
 
-    const applyMorphism = ( dataOut, fn, path, defaultValue ) => [
-      lens( path, fn(dataOut), defaultValue, dataOut ),
-      path, 
-      defaultValue 
+    const applyMorphism = <B extends A>( dataOut: Y, fn: MappingFn<Y, A, B>, path: Path, defaultValue: A ): Accumelator<V, A> => [
+      lens( path as [keyof Y], fn( dataOut ) as ( pathValue: unknown ) => B, defaultValue, dataOut ) as any as V,
+      path,
+      defaultValue,
     ]
-      
-    const programReducer = ( [ dataOut , path , defaultValue ] : [ L, any[], A ], item: Function | any[] ) => { 
+
+    const programReducer = <B extends A>( [ dataOut , path , defaultValue ]: Accumelator<Y, A>, item: MapOrChainFn<Y, V, U, L, A, B> | ProgramHead<Y, V, A> ): Accumelator<V, A> => {
       return isFunction( item )
         // item is a function
-        ? LensExperimental.isChainHelper( item )
-          ? handleChain( dataOut, item, path, defaultValue )
-          : applyMorphism( dataOut, item, path, defaultValue )
+        ? this.isChainHelper( item )
+          ? handleChain( dataOut, item, path, defaultValue ) as Accumelator<V, A>
+          : applyMorphism( dataOut, item as MappingFn<Y, A, B>, path, defaultValue ) as Accumelator<V, A>
         // item is an array
-        : [ dataOut, head( item ), last( item ) ]
+        : [ dataOut, head( item as ProgramHead<Y, V, A> ), last( item as ProgramHead<Y, V, A> ) ] as Accumelator<any, A>
 
     }
 
+    const programHead =  head( this.program )
+
     return head(
-      this.program.reduce( 
-        programReducer, 
-        [ 
-          dataIn, 
-          head( head( this.program ) ), 
-          last( head( this.program ) ) 
-        ] 
-      )
+      this.program.reduce(
+        programReducer,
+        [
+          dataIn,
+          head( programHead ),
+          last( programHead ),
+        ],
+      ) as Accumelator<V, A>,
     )
   }
 
-
-  // _join<Data extends L>(data: Data ) : L {
-  //   const [ path, defaultValue ] = this.pathAndDefaultValue
-    
-  //   return lens( path , this.run( data  ), defaultValue, data )
-  // }
-
-  fold<Data extends L, B>(data: Data, fn: (pathValue: A) => B ) : L 
-  fold<Data extends L, B>(data: Data) : (fn: (pathValue: A) => B ) => L 
-  fold(...args)
-  {
+  fold<Data extends Y, B>( data: Data, fn: ( pathValue: A ) => B ): Y
+  fold<Data extends Y, B>( data: Data ): ( fn: ( pathValue: A ) => B ) => Y
+  fold( ...args ) {
     return untypedCurry(
-      (fn, data) => this.map(fn).join(data)
-    )(...args)
+      ( fn, data ) => this.map( fn ).join( data ),
+    )( ...args )
   }
 
-  write<Data extends L, B>( writeValue: A ) : ( data: Data, ) => L 
-  write<Data extends L, B>( writeValue: A , data: Data, ) : L
-  write(...args){
+  write<Data extends Y, B>( writeValue: A ): ( data: Data ) => Y
+  write<Data extends Y, B>( writeValue: A , data: Data ): Y
+  write( ...args ) {
     return untypedCurry(
-      (writeValue, data) => this.fold(data, _ => writeValue)
-    )(...args) 
+      ( writeValue, data ) => this.fold( data, ( _ ) => writeValue ),
+    )( ...args )
   }
 
-  reduce<Data extends L, B>(fn: (pathValue: A) => B ) : ( data: Data, ) => L 
-  reduce<Data extends L, B>(fn: (pathValue: A) => B , data: Data, ) : L
-  reduce(...args)
-  {
+  reduce<Data extends Y, B>( fn: ( pathValue: A ) => B ): ( data: Data ) => Y
+  reduce<Data extends Y, B>( fn: ( pathValue: A ) => B , data: Data ): Y
+  reduce( ...args ) {
     return untypedCurry(
-      (fn, data) => this.map(fn).join(data)
-    )(...args) 
+      ( fn, data ) => this.map( fn ).join( data ),
+    )( ...args )
   }
 
-  joinAndRead<Data extends L, B>( data: Data, ) : [L,A,A] {
-    const [path,defaultValue] = head( this.program )
-    const fn = a => a
+  joinAndRead<Data extends Y, B>( data: Data ): [V, A, unknown] {
+    const [ path, defaultValue ] = head( this.program )
+    const fn = ( a ) => a
     return pipeline(
-        this.map(fn).join(data),
-        pData => [ pData, getPathValue( path, pData ), getPathValue( path, data ) ]
-      ) as [L,A,A]
+        this.map( fn ).join( data ),
+        ( pData ) => [ pData, getPathValue( path as [keyof V] , pData ), getPathValue( path as [keyof Y], data ) ],
+      ) as [V, A, unknown]
   }
 
-  reduceAndRead<Data extends L, B>(fn: (pathValue: A) => B ) : ( data: Data, ) => L 
-  reduceAndRead<Data extends L, B>(fn: (pathValue: A) => B , data: Data, ) : L
-  reduceAndRead(...args)
-  {
+  reduceAndRead<Data extends Y, B>( fn: ( pathValue: A ) => B ): ( data: Data ) => V
+  reduceAndRead<Data extends Y, B>( fn: ( pathValue: A ) => B , data: Data ): V
+  reduceAndRead( ...args ) {
     return untypedCurry(
-      (fn, data) => this.map(fn).joinAndRead(data)
+      ( fn, data ) => this.map( fn ).joinAndRead( data ),
     )
   }
 
-  read<Data extends L>( data: Data, ) : A {
-    const [path,defaultValue] = head( this.program )
-    return getPathValue( path, this.reduce( a => a ,data) ) as any as A
+  read<Data extends Y>( data: Data ): A {
+    const [ path, defaultValue ] = head( this.program )
+    return getPathValue( path as [keyof Y], this.reduce( ( a ) => a , data ) ) as A
   }
 
-  preRead<Data extends L>( data: Data, ) : A {
-    const [path,defaultValue] = head( this.program )
-    return getPathValue( path, data ) as any as A
+  preRead<Data extends Y>( data: Data ) {
+    const [ path, defaultValue ] = head( this.program )
+    const foo = head( this.program )
+    return getPathValue( path as [keyof Y], data )
   }
 
+  private mapProgram<B>( fn: MappingFn<Y, A, B> ): Programs<Y, V, U, L, B> {
+    return pipeline(
+        last( this.program ) as MapOrChainFn<Y, V, U, L, A, B> | ProgramHead<Y, V, A>,
+        ( lastProgram ) => init( this.program ).concat(
+        Lens.isComposableLensMorphism( lastProgram )
+          ? [ ( dataOut: Y ) => ( pathValue: A ) => fn( dataOut )( lastProgram( dataOut )( pathValue ) )  ]
+          : [ lastProgram, fn ],
+      ) as Programs<Y, V, U, L, B>,
+    )
+  }
+  private readonly isChainHelper = ( item ): item is ( ( data: Y ) => ( pathValue: A ) => Lens<Y, V, U, L, A> ) =>
+    typeof item === 'function'
+      && item.name === Lens.chainHelperName
+
+  private getChainHelper<B>( fn: ( data: Y ) => ( pathValue: A ) => Lens<Y, V, U, L, B> ): ChainingFn<Y, V, U, L, A, B> {
+    const that = this
+    return defineFunctionProperties(
+      function chainHelper( data ) {
+        return ( pathValue: A ) => fn( data )( pathValue )
+      },
+      { name: Lens.chainHelperName },
+    )
+  }
+
+  private chainProgram<B>( fn: ( data: Y ) => ( pathValue: A ) => Lens<Y, V, U, L, B> ): Programs<Y, V, U, L, B> {
+    return this.program.concat( this.getChainHelper( fn ) ) as Programs<Y, V, U, L, B>
+  }
 
 }
 
-
-
-// const bro = {
-//   a:1,
-//   b: {c : 2}
-// }
-// Lens2.type<typeof bro>().of([ ['b','c'], 0 ])
-
-// const ff = getPathValue(['b'],bro)
-
-
-
-
-// export const ask = <E>(): Lens<E, E> => {
-//   return new Lens([],identity)
-// }
-
-declare module 'fp-ts/lib/HKT' {
-  interface URI2HKT2<L,A> {
-    'babakness/lens': Lens3<L,A>,
-  }
-}
-
-
-// type Brah = [
-//   [1,0,0]
-// ]
-
-// const broz = Lens.type<Brah>().of([0,5])//.default(1)
-// const brozz = Lens.of(['a','b'])
-// ; 
-
-// var trampoline = (fn) => function (...args) {
-//   var result = fn(...args)
-
-//   while (result instanceof Function) {
-//     result = result();
+// declare module 'fp-ts/lib/HKT' {
+//   interface URI2HKT3<U,L,A> {
+//     'babakness/lens': Lens<U,L,A>,
 //   }
-
-//   return result;
-
 // }
-
-// export function factorial (n) {
-//   var _factorial = trampoline( function myself (acc, n) {
-//     return n
-//     ? function () { return myself(acc * n, n - 1); }
-//     : acc
-//   });
-
-//   return _factorial(1, n);
-// }
-

@@ -1,3 +1,19 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "files.exclude": {
+    "**/.git": false,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/.history": true,
+    "**/jsdoc-src": true
+  },
+  "search.exclude": {
+    "**/lib": true, 
+  },
+  "tslint.autoFixOnSave" : true,
+  "tslint.enable" : true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsserver.trace": "verbose"
 }

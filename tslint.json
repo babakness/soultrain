@@ -1,0 +1,36 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {
+        
+    },
+    "linterOptions": {
+        "typeCheck": true,
+        "exclude": [
+            ".history"        ]
+    },
+    "rules": {
+        "quotemark": [ true, "single" ],
+        "semicolon": [ true, "never" ],
+        "max-line-length": false,
+        "interface-name": false,
+        "space-within-parens": [ true, 1 ],
+        "array-bracket-spacing": [ true, "always" ],
+        "array-type": [true, "array-simple"],
+        "block-spacing": [
+            true,
+            "always"
+        ],
+        "ter-computed-property-spacing": [true, "always"],
+        "ter-indent": [true, 2],
+        "linebreak-style": [true, "LF"],
+        "ordered-imports" : true,
+        "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
+        "member-access": false
+    },
+    "rulesDirectory": [
+        "node_modules/tslint-eslint-rules/dist/rules"
+      ]
+}

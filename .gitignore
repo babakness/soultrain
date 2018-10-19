@@ -3,3 +3,4 @@ node_modules
 .history
 ignore
 lib
+jsdoc-src
