@@ -9,6 +9,7 @@ import {
   Predicate,
 
 } from './helper-types'
+import { trace } from './logging'
 
 declare module 'fp-ts/lib/HKT' {
   interface URI2HKT<A> {
@@ -143,14 +144,14 @@ export class Transduce<A> {
   }
 
   every( n: number , offset = 0 ): Transduce < A > {
-    const getReducer = ( skipped = 0 ) => ( acc, item ) =>
-      acc.length > -1 &&
-      acc.length + skipped >= offset &&
-      n > 0 &&
-      ( acc.length + skipped + offset )  === 0 ?
-        true :
-        ( skipped++, false )
-    const reducer = getReducer( 0 )
+    let count = -1
+    const reducer = ( acc, item ) => count++ < offset - 1
+      ? false // ( trace( count ), false )
+      : ( count  + offset ) % n === 0
+        ? true
+        : false
+
+    // const reducer = getReducer( 0 )
     return new Transduce( this.list, this.compose( filterReducer( reducer ) ) )
   }
 

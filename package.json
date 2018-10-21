@@ -8,7 +8,7 @@
     "test": "ava-ts",
     "test-watch": "npm run test -- --watch --pretty",
     "build": "tsc",
-    "prepare": "tsc",
+    "prepare": "./prepare",
     "dev": "tsc --project tsconfig.json --watch --pretty",
     "build-es": "tsc --project tsconfig-es.json && prepend-jsdoc-module-name"
   },

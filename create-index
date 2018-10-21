@@ -8,9 +8,9 @@ do
     remove="$1/"
     moduleName=$(x="${f//$remove}" && echo "${x//.ts}")
     moduleText="export * from './$moduleName'"
-    final=$( printf "$moduleText\n$final" )
+    final=$( echo -e "$moduleText\n$final" )
 done;
 
 # [ -f "$path/index.ts" ] && mv "$path/index.ts" "../index-$time.ts"
 # [ -f "$path/index.ts" ] && echo "Please remove the current index.ts" && exit 1
-echo -e "// AUTOMATED FILE. DO NOT EDIT. \n$final" > "$path/index.ts"
+echo -e "// AUTOMATED FILE. DO NOT EDIT.\n$final" > "$path/index.ts"

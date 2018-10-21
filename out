@@ -1,0 +1,35 @@
+import { HKT, Type, URIS } from 'fp-ts/lib/HKT'
+
+declare module 'fp-ts/lib/HKT' {
+  interface URI2HKT<A> {
+    'Array': A[],
+  }
+}
+
+export * from './src/array/index'
+export * from './src/function/index'
+export * from './src/pairs/index'
+export * from './src/type/index'
+
+export * from './src/check.ts'
+export * from './src/combinators.ts'
+export * from './src/equals.ts'
+export * from './src/evolve-type.ts'
+export * from './src/filters.ts'
+export * from './src/flow.ts'
+export * from './src/functor-helpers.ts'
+export * from './src/helper-types.ts'
+export * from './src/index.ts'
+export * from './src/iterables.ts'
+export * from './src/lens-functions.ts'
+export * from './src/lens.ts'
+export * from './src/logging.ts'
+export * from './src/math.ts'
+export * from './src/matrix.ts'
+export * from './src/maybe-functions.ts'
+export * from './src/maybe.ts'
+export * from './src/object.ts'
+export * from './src/placeholder.ts'
+export * from './src/string.ts'
+export * from './src/transduce.ts'
+export * from './src/transducers.ts'

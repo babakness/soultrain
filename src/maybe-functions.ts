@@ -52,8 +52,8 @@ export function safeProp( ...args ) {
  * safeIndex(10,[1,2,3]) // nothing
  */
 const _safeIndex = untypedCurry( ( index, arr ) => Maybe.from( arr[ index ] ) )
-export function safeIndex<A, B extends keyof A>( index: B & number, arr: A & Array<{}> ): Maybe<A[B]>
-export function safeIndex<A, B extends keyof A>( index: B | number ): ( arr: A ) => Maybe<A[B]>
-export function safeIndex( ...args ) {
+export function safeIndexValue<A extends any[], I extends number>( index: I, arr: A & Array<{}> ): Maybe<A[I]>
+export function safeIndexValue<I extends number>( index: I ): <A extends any[]>( arr: A ) => Maybe<A[I]>
+export function safeIndexValue( ...args ) {
   return _safeIndex( ...args )
 }

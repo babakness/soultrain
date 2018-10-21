@@ -529,3 +529,18 @@ export type Merge<A extends AnyObject, B extends AnyObject, C extends A & B = A 
 export type AnyFunction = ( ...args: any[] ) => any
 export type ExtractFunctionArguments < Fn > = Fn extends  ( ...args: infer P ) => any  ? P : never
 export type ExtractFunctionReturnValue<Fn> = Fn extends  ( ...args: any[] ) => infer P  ? P : never
+
+export type ItemInsideIterable<I> = {
+  'iterable': I extends Iterable<infer U>
+    ? U
+    : never
+  'nodelist': I extends NodeListOf<infer U>
+    ? U
+    : never,
+}[
+  I extends Iterable<any>
+    ? 'iterable'
+    : I extends NodeListOf<any>
+      ? 'nodelist'
+      : never
+]

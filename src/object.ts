@@ -63,10 +63,19 @@ export const flippedProp = <T, K extends keyof T>( obj: T ) => ( _prop: K ) => o
  *
  * :: k -> v -> o -> {...o, {[k]: v}} }
  */
-export function assoc <P extends string, V, O>( prop: P, value: V, obj: O ): {[p in P]: V} & O
-export function assoc <P extends string, V>( prop: P, value: V ): <O>( obj: O ) =>    {[p in P]: V} & O
-export function assoc <P extends string>( prop: P ): <V>( value: V ) => <O>( obj: O ) =>  {[p in P]: V} & O
+export function assoc <P extends string|number|symbol, V, O>( prop: P, value: V, obj: O ): {[p in P]: V} & O
+export function assoc <P extends string|number|symbol, V>( prop: P, value: V ): <O>( obj: O ) =>    {[p in P]: V} & O
+export function assoc <P extends string|number|symbol>( prop: P ): <V>( value: V ) => <O>( obj: O ) =>  {[p in P]: V} & O
 export function assoc( ...args ) {
+  return untypedCurry(
+    ( _prop, value, obj ) => Object.assign( {}, obj, {[ _prop ]: value} ),
+  )( ...args )
+}
+
+export function assoc_ <O extends object, P extends string|number|symbol, V>( obj: O, prop: P, value: V ): {[p in P]: V} & O
+export function assoc_ <O extends object, P extends string|number|symbol>( obj: O, prop: P ): <V>( value: V ) =>    {[p in P]: V} & O
+export function assoc_ <O extends object>( obj: O ): <P extends string|number|symbol>( prop: P ) => <V>( value: V ) =>  {[p in P]: V} & O
+export function assoc_( ...args ) {
   return untypedCurry(
     ( _prop, value, obj ) => Object.assign( {}, obj, {[ _prop ]: value} ),
   )( ...args )
@@ -86,35 +95,9 @@ export function assign( ...args ) {
   return untypedCurry( ( target, source ) => Object.assign( {}, target, source ) )( ...args )
 }
 
-/**
- * Takes key and value return object single with key / value
- * @example
- * fromPair('a',1) // {a:1}
- */
-export function fromSinglePair<K extends string, V>( k: K, v: V ): {[Key in string]: V}
-export function fromSinglePair<K extends string, V>( k: K, v: V ): {[Key in number]: V}
-export function fromSinglePair<K extends number, V>( k: K ): ( v: V ) => {[Key in string]: V}
-export function fromSinglePair<K extends number, V>( k: K ): ( v: V ) => {[Key in number]: V}
-export function fromSinglePair( ...args ) {
-  return untypedCurry( ( key, value ) => ( {[ key ]: value} ) )( ...args )
-}
-
 interface KeyValuePair<K, V> extends Array<K | V> {
   0: K
   1: V
-}
-
-const _fromPairs = untypedCurry( <V>( kv: Array<KeyValuePair<string, V>> ) =>
-  kv.reduce(
-    ( acc, [ k, v ] ) => assign( acc, {[ k ]: v} ) ,
-    {},
-  ),
-)
-
-export function fromPairs <V>( kv: Array<KeyValuePair<string, V>> ): { [index: string]: V }
-export function fromPairs <V>( kv: Array<KeyValuePair<number, V>> ): { [index: number]: V }
-export function fromPairs( ...args ) {
-  return _fromPairs( ...args )
 }
 
 // export const fromEntries = fromPairs

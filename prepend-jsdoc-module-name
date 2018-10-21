@@ -8,7 +8,7 @@ shouldModify(){
 appendToFile(){
   local file=$1
   local text=$2
-  echo -e "$text" > "$file-temp"
+  echo -e "$text\n" > "$file-temp"
   cat $file >> "$file-temp"
   mv "$file-temp" $file
 }
@@ -21,8 +21,7 @@ do
   then
     remove="$1/"
     moduleName=$(echo "${f//$remove}")
-    moduleFull="/** @module $moduleName */
-"
+    moduleFull="/** @module $moduleName */"
     appendToFile "$f" "$moduleFull"
   fi
 done;

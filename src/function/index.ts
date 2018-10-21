@@ -1,5 +1,3 @@
-/** @module function/index.ts */
-
 // AUTOMATED FILE. DO NOT EDIT.
 export * from './untypedCurry'
 export * from './pipeline'
@@ -10,6 +8,7 @@ export * from './not'
 export * from './index'
 export * from './identity'
 export * from './flip'
+export * from './evolve'
 export * from './defineFunctionProperties'
 export * from './define'
 export * from './curry'

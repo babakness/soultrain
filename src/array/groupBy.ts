@@ -3,7 +3,8 @@
 import { untypedCurry } from '../function/untypedCurry'
 import { Maybe } from '../maybe'
 import { safeProp } from '../maybe-functions'
-import { assign, fromSinglePair } from '../object'
+import { assign } from '../object'
+import { fromSinglePair } from '../pairs/fromSinglePair'
 const _appendToProp = <A>( item, key, acc ) => ( safeProp( key, acc ) as Maybe<A[]> )
   .map( ( groupXs: A[] ) => groupXs.concat( item ) )
   .joinOrValue( [ item ] )
