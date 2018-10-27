@@ -5,6 +5,10 @@ interface DropPossibleCurried {
   <A>( index: number, arr: A[] ): A[]
   <A>( index: number ): ( arr: A[] ) => A[]
 }
+
+export function dropByIndex<A>( count: number, index: number, arr: A[] ): A[]
+export function dropByIndex<A>( count: number, index: number ): ( arr: A[] ) => A[]
+export function dropByIndex( count: number ): DropPossibleCurried
 /**
  * Drop removes a given number of items from an array at a specific index.
  * Drop is similar to remove; the order of the first to parameters is reversed
@@ -14,9 +18,6 @@ interface DropPossibleCurried {
  * @param arr array to remove items from
  * @sig n -> n -> a[] -> a[]
  */
-export function dropByIndex<A>( count: number, index: number, arr: A[] ): A[]
-export function dropByIndex<A>( count: number, index: number ): ( arr: A[] ) => A[]
-export function dropByIndex( count: number ): DropPossibleCurried
 export function dropByIndex( ...args ) {
   return untypedCurry( <A>( count, index, arr ): A[] => [ ...arr.slice( 0, index ), ...arr.slice( index + count, arr.length ) ] )( ...args )
 }

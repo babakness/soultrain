@@ -10,6 +10,9 @@ export function toIterablePair<A extends {
 }>( obj: A ): A extends {
   [k in string]: infer V;
 } ? Array<[string, V]> : never
+/**
+ * Todo
+ */
 export function toIterablePair( obj ) {
   return isMapOrSet( obj )
     ? obj.entries()

@@ -15,6 +15,9 @@ type ToPairs<O> = {
 export function toPairs<A extends Map<any, any>>( obj: A ): Array<[A extends Map<infer K, any> ? K : never, A extends Map<any, infer V> ? V : never]>
 export function toPairs<K, A extends Iterable<K>>( obj: A ): Array<[string, A[keyof A]]>
 export function toPairs<A extends any[]>( obj: A ): Array<[string, A extends Array<infer U> ? U : never]>
+/**
+ * Todo
+ */
 export function toPairs<A extends {
   [K in string]: any;
 }>( obj: A ): A extends {

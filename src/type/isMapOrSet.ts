@@ -2,5 +2,8 @@
 
 import {type} from './type'
 
+/**
+ * Todo
+ */
 export const isMapOrSet = ( obj: unknown ): obj is ( Set<any>|Map<any, any> ) => !![ 'Map', 'Set' ].find( ( i ) => i === type( obj ) )
 export default isMapOrSet

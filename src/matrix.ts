@@ -13,6 +13,8 @@ const _flipRectangularMatrix = untypedCurry( ( rowLength, arr ) => times( ( iter
   rowLength,
 ) )
 
+export function flipRectangularMatrixFromWidth<A>( rowLenght: number, matrix: A[][] ): A[][]
+export function flipRectangularMatrixFromWidth<A>( rowLenght: number ): ( matrix: A[][] ) => A[][]
 /**
  * Takes a rectangular matrix at a specified width
  * returns calculated flipped matrix
@@ -20,8 +22,6 @@ const _flipRectangularMatrix = untypedCurry( ( rowLength, arr ) => times( ( iter
  * flipRectangularMatrix(4, [ [1,2,3,4], [5,6,7,8], [9,10,11,12]  ] )
  * // [ [ 1, 5, 9 ], [ 2, 6, 10 ], [ 3, 7, 11 ], [ 4, 8, 12 ] ]
  */
-export function flipRectangularMatrixFromWidth<A>( rowLenght: number, matrix: A[][] ): A[][]
-export function flipRectangularMatrixFromWidth<A>( rowLenght: number ): ( matrix: A[][] ) => A[][]
 export function flipRectangularMatrixFromWidth( ...args ) {
   return _flipRectangularMatrix( ...args )
 }
@@ -47,6 +47,8 @@ const _rotateRectangularMatrix = untypedCurry( ( rowLength, matrix ) => times( (
 rowLength,
 ) )
 
+export function rotateRectangularMatrixFromWidth<A>( rowLenght: number, matrix: A[][] ): A[][]
+export function rotateRectangularMatrixFromWidth<A>( rowLenght: number ): ( matrix: A[][] ) => A[][]
 /**
  * Takes a rectangular matrix at a specified width
  * returns calculated right rotated matrix
@@ -55,8 +57,6 @@ rowLength,
  * // [ [ 9, 5, 1 ], [ 10, 6, 2 ], [ 11, 7, 3 ], [ 12, 8, 4 ] ]
  *
  */
-export function rotateRectangularMatrixFromWidth<A>( rowLenght: number, matrix: A[][] ): A[][]
-export function rotateRectangularMatrixFromWidth<A>( rowLenght: number ): ( matrix: A[][] ) => A[][]
 export function rotateRectangularMatrixFromWidth( ...args ) {
   return _rotateRectangularMatrix( ...args )
 }
@@ -80,6 +80,8 @@ const _rotateLeftRectangularMatrix = untypedCurry( ( rowLength, matrix ) =>
   pipeline( flipRectangularMatrixFromWidth( rowLength, matrix ), reverse ),
 )
 
+export function rotateLeftRectangularMatrixFromWidth<A>( rowLenght: number, matrix: A[][] ): A[][]
+export function rotateLeftRectangularMatrixFromWidth<A>( rowLenght: number ): ( matrix: A[][] ) => A[][]
 /**
  * Takes a rectangular matrix at a specified width
  * returns calculated left rotated matrix
@@ -91,8 +93,6 @@ const _rotateLeftRectangularMatrix = untypedCurry( ( rowLength, matrix ) =>
  * ] )
  * [ [ 4, 8, 12 ], [ 3, 7, 11 ], [ 2, 6, 10 ], [ 1, 5, 9 ] ]
  */
-export function rotateLeftRectangularMatrixFromWidth<A>( rowLenght: number, matrix: A[][] ): A[][]
-export function rotateLeftRectangularMatrixFromWidth<A>( rowLenght: number ): ( matrix: A[][] ) => A[][]
 export function rotateLeftRectangularMatrixFromWidth( ...args ) {
   return _rotateLeftRectangularMatrix( ...args )
 }

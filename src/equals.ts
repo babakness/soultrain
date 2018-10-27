@@ -184,6 +184,9 @@ function _equals( a, b, stackA, stackB ) {
 
 export function equals( a: unknown, b: unknown ): boolean
 export function equals( a: unknown ): ( b: unknown ) => boolean
+/**
+ * Todo, function borrowed from Ramda
+ */
 export function equals( ...args ) {
   return untypedCurry(
     ( a, b ) => _equals( a, b, [], [] ),

@@ -4,6 +4,7 @@ import {
   add,
   always,
   and,
+  AnyFunction,
   arrayItemsAllEqual,
   arrayItemsMeetPredicate,
   assign,
@@ -11,8 +12,10 @@ import {
   complementCurry,
   contains,
   curry,
+  dec,
   entries,
   every,
+  evolve,
   filter,
   flippedProp,
   flipRectangularMatrix,
@@ -23,6 +26,7 @@ import {
   head,
   identity,
   ifElse,
+  inc,
   indexValue,
   joinArray,
   Just,
@@ -37,6 +41,7 @@ import {
   pairKeys,
   parallel,
   parallelLoose,
+  parallelObj,
   pipe,
   pipeline,
   placeholder,
@@ -67,59 +72,89 @@ import {
   when,
 } from '../src/index'
 
-// test( 'tests library works', ( t ) => t.pass() )
+test( 'tests library works', ( t ) => t.pass() )
 
-// test( 'lens ADT', ( t ) => {
-//   const database = [
-//     { name: 'Tina', score: 100,  luckyBonus:  { diceRolls: [ 3, 6, 3 ], multiplierRoll: 5 }},
-//     { name: 'Darius', score: 60, luckyBonus:  { diceRolls: [ 3, 3, 3 ], multiplierRoll: 2 }},
-//     { name: 'Betta', score: 40,  luckyBonus:  { diceRolls: [ 2, 3, 4 ], multiplierRoll: 3 }},
-//     { name: 'Larry', score: 70,  luckyBonus:  { diceRolls: [ 1, 1, 1 ], multiplierRoll: 6 }},
-//   ]
+test( 'parallelObj', ( t ) => {
+  interface ResultType {
+    a: number,
+    b: number,
+    c: {
+      d: number,
+    }
+    e: number[]
+  }
+  const result = parallelObj( {a: inc, b: dec, c: {d: inc }, e: [ inc ] }, 100 )
+  const e: number[] = result.e
+  t.deepEqual(
+    result,
+    { a: 101, b: 99, c: { d: 101 }, e: [ 101 ] },
+  )
+} )
 
-//   type Row = ValueAt<typeof database, 0>
+test( 'evolve', ( t ) => {
+  interface ResultType { a: number, b: number, c: number, z: { y: { x: number, w: number } }, h: number[]}
+  const result: ResultType = evolve( { a: inc , b: dec, z: { y : { x : inc }}, h: ( x: number[] ) => x.slice().reverse() }, {a: 4, b: 5, c: 6, z : { y : { x : 10, w: 12 }}, h: [ 1, 2 ]} )
+  t.deepEqual(
+    result,
+    { a: 5, b: 4, c: 6, z: { y: { x: 11, w: 12 } }, h: [ 2, 1 ] },
+  )
+} )
 
-//   interface RowAdjustScore extends Row {
-//     luckyScore: number
-//     finalScore: number
-//   }
+test( 'lens ADT', ( t ) => {
+  const database = [
+    { name: 'Tina', score: 100,  luckyBonus:  { diceRolls: [ 3, 6, 3 ], multiplierRoll: 5 }},
+    { name: 'Darius', score: 60, luckyBonus:  { diceRolls: [ 3, 3, 3 ], multiplierRoll: 2 }},
+    { name: 'Betta', score: 40,  luckyBonus:  { diceRolls: [ 2, 3, 4 ], multiplierRoll: 3 }},
+    { name: 'Larry', score: 70,  luckyBonus:  { diceRolls: [ 1, 1, 1 ], multiplierRoll: 6 }},
+  ]
 
-//   const lens = Lens.type<RowAdjustScore>()
-//   const diceRollLens = lens.of( [ [ 'luckyBonus', 'diceRolls' ], [] ] )
-//   const multiplierLens = lens.of( [ [ 'luckyBonus', 'multiplierRoll' ], 0 ] )
+  type Row = ValueAt<typeof database, 0>
 
-//   const calculateLuckyScore = lens.of( [ [ 'luckyScore' ], 0 ] )
-//     .ap( diceRollLens.map( always ) )
-//     .map( parallel(
-//       sumArray,
-//       prop( 'length' ),
-//       arrayItemsMeetPredicate( ( c, p ) => c === p ) ),
-//     )
-//     .ap( multiplierLens.map( ( a ) => ( b ) => b.concat( a ) ) )
-//     .map( ( [ sum, length, allAreSame, multiplier ]: [number, number, boolean, number] ) =>
-//       length === 3 && allAreSame
-//         ? sum * multiplier
-//         : sum,
-//     )
-//     .chain( ( sum ) => lens.of( [ [ 'finalScore' ], sum ] ).map( always( sum ) ) )
-//     .ap( lens.of( [ [ 'score' ], 0 ] ).map( add ) )
+  interface RowAdjustScore extends Row {
+    luckyScore: number
+    finalScore: number
+  }
 
-//   const processRow = bindToInstance( calculateLuckyScore, 'join' )
+  type Always = <T>( a: T ) => ( ( b: any ) => T )
+  const lens = Lens.type<RowAdjustScore>()
+  const diceRollLens = lens.of( [ [ 'luckyBonus', 'diceRolls' ], [] ] )
+  const multiplierLens = lens.of( [ [ 'luckyBonus', 'multiplierRoll' ], 0 ] )
+  const bro = diceRollLens.map( always )
+  const calculateLuckyScore = lens.of( [ [ 'luckyScore' ], 0 ] )
+    .map( ( i ) => i )
+    .ap( diceRollLens.map( always as Always ) )
+    .map( ( i ) => i )
+    .map( parallel(
+      sumArray,
+      prop( 'length' ),
+      arrayItemsMeetPredicate( ( c, p ) => c === p ),
+    ) )
+    .map( ( i ) => i )
+    .ap( multiplierLens.map( ( a ) => ( b ) => b.concat( a ) ) )
+    .map( ( [ sum, length, allAreSame, multiplier ]: [number, number, boolean, number] ) =>
+      length === 3 && allAreSame
+        ? sum * multiplier
+        : sum,
+    )
+    .chain( ( sum ) => lens.of( [ [ 'finalScore' ], sum ] ).map( always( sum ) ) )
+    .ap( lens.of( [ [ 'score' ], 0 ] ).map( add ) )
 
-//   const processedData = database.map(
-//     ( row ) => pipeline(
-//       row,
-//       assign( {luckyScore: 0, finalScore: 0} ),
-//       processRow,
-//     ),
-//   )
+  const processRow = bindToInstance( calculateLuckyScore, 'join' )
 
-//   t.deepEqual(
-//     sumColumn( 'score', processedData ),
-//     270,
-//   )
+  const processedData = database.map(
+    ( row ) => pipeline(
+      row,
+      assign( {luckyScore: 0, finalScore: 0} ),
+      processRow,
+    ),
+  )
 
-// } )
+  t.deepEqual(
+    sumColumn( 'score', processedData ),
+    270,
+  )
+
+} )
 
 // // test('lens ADT', t => {
 
@@ -170,150 +205,151 @@ import {
 // //   t.deepEqual(traceWithLabel('from label test',100),100)
 // // })
 
-// // test('clone', t=>{
-// //   const obj = {
-// //     a: 1,
-// //     h: {e: { m: 99 }},
-// //     b: { c: { d: 2}, zzz: { foo: 20}},
-// //     z: () => 10
-// //   }
-// //   const zxv = _lens(['b','c','d'], x => DELETE , 0,obj)
-// //   trace(zxv.b)
-// //   // trace(factorial(32768))
-// // })
+// test('clone', t=>{
+//   const obj = {
+//     a: 1,
+//     h: {e: { m: 99 }},
+//     b: { c: { d: 2}, zzz: { foo: 20}},
+//     z: () => 10
+//   }
+//   const zxv = _lens(['b','c','d'], x => DELETE , 0,obj)
+//   trace(zxv.b)
+//   // trace(factorial(32768))
+// })
 
-// test( 'splitAt', ( t ) => {
-//   t.deepEqual(
-//     splitAt( 2, [ 1, 2, 3, 4, 5, 6 ] ),
-//     [ [ 1, 2 ], [ 3, 4, 5, 6 ] ],
-//   )
-// } )
-// test( 'fromPairs', ( t ) => {
-//   t.deepEqual(
-//     fromPairs( [ [ 'a', 1 ], [ 'b', 2 ] ] ),
-//     {a: 1, b: 2},
-//   )
-//   t.deepEqual(
-//     fromPairs( [ [ 1, 1 ], [ 2, 2 ] ] ),
-//     {1: 1, 2: 2},
-//   )
-// } )
-// test( 'groupBy', ( t ) => {
-//   t.deepEqual(
-//     groupBy( ( x ) => x % 2 ? 'odd' : 'even', [ 1, 2, 3, 4, 5, 6, 7 ] ),
-//     { odd: [ 1, 3, 5, 7 ], even: [ 2, 4, 6 ] },
-//   )
-// } )
-// test( 'arrayItemsPredicate', ( t ) => {
-//   t.deepEqual(
-//     arrayItemsMeetPredicate( ( n1, n2 ) => n1 < n2 , [ 1, 2, 3, 4 ] ),
-//     true,
-//   )
-//   t.deepEqual(
-//     arrayItemsMeetPredicate( ( n1, n2 ) => n1 < n2 , [ 1, 2, 3, 4, 2 ] ),
-//     false,
-//   )
-// } )
+test( 'splitAt', ( t ) => {
+  t.deepEqual(
+    splitAt( 2, [ 1, 2, 3, 4, 5, 6 ] ),
+    [ [ 1, 2 ], [ 3, 4, 5, 6 ] ],
+  )
+} )
+test( 'fromPairs', ( t ) => {
+  t.deepEqual(
+    fromPairs( [ [ 'a', 1 ], [ 'b', 2 ] ] ),
+    {a: 1, b: 2},
+  )
+  t.deepEqual(
+    fromPairs( [ [ 1, 1 ], [ 2, 2 ] ] ),
+    {1: 1, 2: 2},
+  )
+} )
+test( 'groupBy', ( t ) => {
+  t.deepEqual(
+    groupBy( ( x ) => x % 2 ? 'odd' : 'even', [ 1, 2, 3, 4, 5, 6, 7 ] ),
+    { odd: [ 1, 3, 5, 7 ], even: [ 2, 4, 6 ] },
+  )
+} )
+test( 'arrayItemsPredicate', ( t ) => {
+  t.deepEqual(
+    arrayItemsMeetPredicate( ( n1, n2 ) => n1 < n2 , [ 1, 2, 3, 4 ] ),
+    true,
+  )
+  t.deepEqual(
+    arrayItemsMeetPredicate( ( n1, n2 ) => n1 < n2 , [ 1, 2, 3, 4, 2 ] ),
+    false,
+  )
+} )
 
-// test( 'complement + curry mix', ( t ) => {
-//   const isBoolean = ( a: unknown ): a is boolean => typeof a === 'boolean' ? true : false
-//   const isIncreasing = curry( ( a: number, b: number, c: number ): boolean =>
-//     // nums.reduce( (acc,item) => isBoolean(acc) ? false : item > acc ? item : false, -Infinity  ) === false ? false : true
-//     [ b, c ].reduce(
-//       ( acc, item ) => acc.chain( ( previousValue ) => item > previousValue ? Maybe.of( item ) : nothing ) ,
-//       Maybe.of( a ),
-//     ).isJust() )
+test( 'complement + curry mix', ( t ) => {
+  const isBoolean = ( a: unknown ): a is boolean => typeof a === 'boolean' ? true : false
+  const isIncreasing = curry( ( a: number, b: number, c: number ): boolean =>
+    // nums.reduce( (acc,item) => isBoolean(acc) ? false : item > acc ? item : false, -Infinity  ) === false ? false : true
+    [ b, c ].reduce(
+      ( acc, item ) => acc.chain( ( previousValue ) => item > previousValue ? Maybe.of( item ) : nothing ) ,
+      Maybe.of( a ),
+    ).isJust() )
 
-//   t.deepEqual(
-//     complementCurry( isIncreasing as ( a: number, b: number, c: number ) => boolean )( 1 )( 2 )( 3 ),
-//     false,
-//   )
+  t.deepEqual(
+    complementCurry( isIncreasing as ( a: number, b: number, c: number ) => boolean )( 1 )( 2 )( 3 ),
+    false,
+  )
 
-// } )
+} )
 
-// test( 'not', ( t ) => {
-//   const isBoolean = ( a: unknown ): a is boolean => typeof a === 'boolean' ? true : false
-//   const isIncreasing = ( nums: number[] ): boolean =>
-//     // nums.reduce( (acc,item) => isBoolean(acc) ? false : item > acc ? item : false, -Infinity  ) === false ? false : true
-//     tail( nums ).reduce(
-//       ( acc, item ) => acc.chain( ( previousValue ) => item > previousValue ? Maybe.of( item ) : nothing ) ,
-//       Maybe.of( head( nums ) ),
-//     ).isJust()
-//   const isNotIncreasing = pipe( isIncreasing, not )
-//   t.deepEqual( isNotIncreasing( [ 1, 2, 3, 2 ] ), true )
-// } )
+test( 'not', ( t ) => {
+  const isBoolean = ( a: unknown ): a is boolean => typeof a === 'boolean' ? true : false
+  const isIncreasing = ( nums: number[] ): boolean =>
+    // nums.reduce( (acc,item) => isBoolean(acc) ? false : item > acc ? item : false, -Infinity  ) === false ? false : true
+    tail( nums ).reduce(
+      ( acc, item ) => acc.chain( ( previousValue ) => item > previousValue ? Maybe.of( item ) : nothing ) ,
+      Maybe.of( head( nums ) ),
+    ).isJust()
+  const isNotIncreasing = pipe( isIncreasing, not )
+  t.deepEqual( isNotIncreasing( [ 1, 2, 3, 2 ] ), true )
+} )
 
-// test( 'placeholders', ( t ) => {
-//   // const isAllTrue = (...bools: boolean[]): boolean => bools.reduce( (acc,item) =>  acc && item ,true)
-//   const isBoolean = ( a: unknown ): a is boolean => typeof a === 'boolean' ? true : false
-//   const isIncreasing = ( ...nums: number[] ): boolean =>
-//     // nums.reduce( (acc,item) => isBoolean(acc) ? false : item > acc ? item : false, -Infinity  ) === false ? false : true
-//     tail( nums ).reduce(
-//       ( acc, item ) => acc.chain( ( previousValue ) => item > previousValue ? Maybe.of( item ) : nothing ) ,
-//       Maybe.of( head( nums ) ),
-//     ).isJust()
+test( 'placeholders', ( t ) => {
+  // const isAllTrue = (...bools: boolean[]): boolean => bools.reduce( (acc,item) =>  acc && item ,true)
+  const isBoolean = ( a: unknown ): a is boolean => typeof a === 'boolean' ? true : false
+  const isIncreasing = ( ...nums: number[] ): boolean =>
+    // nums.reduce( (acc,item) => isBoolean(acc) ? false : item > acc ? item : false, -Infinity  ) === false ? false : true
+    tail( nums ).reduce(
+      ( acc, item ) => acc.chain( ( previousValue ) => item > previousValue ? Maybe.of( item ) : nothing ) ,
+      Maybe.of( head( nums ) ),
+    ).isJust()
 
-//   const divide = ( numerator: number, denomenator: number ) => numerator / denomenator
-//   const half = placeholder( divide, _, 2 )
-//   pipeline(
-//     10,
-//     half,
-//   )
-//   const mySequence = placeholder( isIncreasing, 1, 2, 3, _, 5 )
-//   t.deepEqual( mySequence( 8 )  , false )
-//   t.deepEqual( mySequence( 4 )  , true )
+  const divide = ( numerator: number, denomenator: number ) => numerator / denomenator
+  const half = placeholder( divide, _, 2 )
+  pipeline(
+    10,
+    half,
+  )
+  const mySequence = placeholder( isIncreasing, 1, 2, 3, _, 5 )
+  t.deepEqual( mySequence( 8 )  , false )
+  t.deepEqual( mySequence( 4 )  , true )
 
-//   const friendlyTemplate = ( name: string, message: string ): string => `Hello ${name}! ${message}`
-//   const welcome = placeholder( friendlyTemplate, _ , 'Welcome to Oregon!' )
+  const friendlyTemplate = ( name: string, message: string ): string => `Hello ${name}! ${message}`
+  const welcome = placeholder( friendlyTemplate, _ , 'Welcome to Oregon!' )
 
-//   t.deepEqual( welcome( 'Roxanne' ), 'Hello Roxanne! Welcome to Oregon!' )
-// } )
+  t.deepEqual( welcome( 'Roxanne' ), 'Hello Roxanne! Welcome to Oregon!' )
+} )
 
-// test( 'curry', ( t ) => {
-//   const testAdd = curry( function testingAdd( a: number, b: number ): number { return a + b } )
-//   const testInc = testAdd( 1 )
-//   t.deepEqual(
-//     testAdd.name,
-//     'add',
-//   )
-//   t.deepEqual(
-//     testAdd.length,
-//     2,
-//   )
-//   t.deepEqual(
-//     testInc.length,
-//     1,
-//   )
-//   t.deepEqual(
-//     testInc( 10 ),
-//     11,
-//   )
-// } )
+test( 'curry', ( t ) => {
+  // tslint:disable-next-line:no-shadowed-variable
+  const testingAdd = curry( function testingAdd( a: number, b: number ): number { return a + b } )
+  const testInc = testingAdd( 1 )
+  t.deepEqual(
+    testingAdd.name,
+    'testingAdd',
+  )
+  t.deepEqual(
+    testingAdd.length,
+    2,
+  )
+  t.deepEqual(
+    testInc.length,
+    1,
+  )
+  t.deepEqual(
+    testInc( 10 ),
+    11,
+  )
+} )
 
-// test( 'arrayItemsAllEqual', ( t ) => {
-//   t.deepEqual(
-//     arrayItemsAllEqual( 1, [ 1, 2, 3 ] ),
-//     false,
-//   )
-//   t.deepEqual(
-//     arrayItemsAllEqual( 1, [ 1, 1, 1 ] ),
-//     true,
-//   )
-// } )
+test( 'arrayItemsAllEqual', ( t ) => {
+  t.deepEqual(
+    arrayItemsAllEqual( 1, [ 1, 2, 3 ] ),
+    false,
+  )
+  t.deepEqual(
+    arrayItemsAllEqual( 1, [ 1, 1, 1 ] ),
+    true,
+  )
+} )
 
-// test( 'test pluck', ( t ) => {
-//   const matrix = [
-//     [ 1, 2, 3 ],
-//     [ 4, 5, 6 ],
-//     [ 7, 8, 9 ],
-//   ]
+test( 'test pluck', ( t ) => {
+  const matrix = [
+    [ 1, 2, 3 ],
+    [ 4, 5, 6 ],
+    [ 7, 8, 9 ],
+  ]
 
-//   t.deepEqual(
-//     pluck( 1, matrix ),
-//     [ 2, 5, 8 ],
-//   )
+  t.deepEqual(
+    pluck( 1, matrix ),
+    [ 2, 5, 8 ],
+  )
 
-// } )
+} )
 
 test( 'test matrix functions', ( t ) => {
   const matrixSquare = [
@@ -377,15 +413,15 @@ test( 'test matrix functions', ( t ) => {
 
 test( 'test index, safeIndex', ( t ) => {
   t.deepEqual(
-    index( 2, [ 1, 2, 3 ] ),
+    indexValue( 2, [ 1, 2, 3 ] ),
     3,
   )
   t.deepEqual(
-    safeValueAt( 2, [ 1, 2, 3 ] ),
+    safeIndexValue( 2, [ 1, 2, 3 ] ),
     Maybe.of( 3 ),
   )
   t.deepEqual(
-    safeValueAt( 10, [ 1, 2, 3 ] ),
+    safeIndexValue( 10, [ 1, 2, 3 ] ),
     nothing,
   )
 } )

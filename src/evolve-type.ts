@@ -1,7 +1,11 @@
 /** @module evolve-type.ts */
 
 import { AnyFunction, AnyObject, ContainsAny, ContainsType, ExtractFunctionArguments, ExtractFunctionReturnValue, IsAny, KeySubset } from './helper-types'
-type Evolve10<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
+type EvolvingValueNotAFunction<T> = T // 'THE VALUE ON THE LEFT HAND SIDE NEEDS TO BE A FUNCTION, OBJECT, OR ARRAY'
+type BadEvolve<T> = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type'
+type WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object'
+
+type Evolve10<E extends AnyObject, I extends AnyObject > = {
   'evaluate': ContainsType<[E, I], {}> extends true
     ? {}
     : {
@@ -9,10 +13,12 @@ type Evolve10<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evol
           ? E[K] extends AnyFunction
             ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
               ? ExtractFunctionReturnValue<E[K]>
-              : ExtractFunctionArguments<E[K]>[0] extends I[K]
+              : [I[K]] extends ExtractFunctionArguments<E[K]>
                 ? ExtractFunctionReturnValue<E[K]>
-                : BadEvolve
-            : Evolve10< E[ K ], I[ K ], BadEvolve, WrongKeys >
+                : BadEvolve<I[K]>
+            : E[K] extends number | string | symbol | any[]
+                ? EvolvingValueNotAFunction<I[K]>
+                : Evolve10< E[ K ], I[ K ]>
           : I[K]
       }
   'done': ContainsAny < [ E, I], {}, WrongKeys>,
@@ -21,7 +27,7 @@ type Evolve10<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evol
     ? 'evaluate'
     : 'done'
 ]
-type Evolve9<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
+type Evolve9<E extends AnyObject, I extends AnyObject > = {
   'evaluate': ContainsType<[E, I], {}> extends true
     ? {}
     : {
@@ -29,10 +35,12 @@ type Evolve9<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
           ? E[K] extends AnyFunction
             ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
               ? ExtractFunctionReturnValue<E[K]>
-              : ExtractFunctionArguments<E[K]>[0] extends I[K]
+              : [I[K]] extends ExtractFunctionArguments<E[K]>
                 ? ExtractFunctionReturnValue<E[K]>
-                : BadEvolve
-            : Evolve10< E[ K ], I[ K ], BadEvolve, WrongKeys >
+                : BadEvolve<I[K]>
+            : E[K] extends number | string | symbol
+                ? EvolvingValueNotAFunction<I[K]>
+                : Evolve10< E[ K ], I[ K ]>
           : I[K]
       }
   'done': ContainsAny < [ E, I], {}, WrongKeys>,
@@ -41,7 +49,7 @@ type Evolve9<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
     ? 'evaluate'
     : 'done'
 ]
-type Evolve8<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
+type Evolve8<E extends AnyObject, I extends AnyObject > = {
   'evaluate': ContainsType<[E, I], {}> extends true
     ? {}
     : {
@@ -49,10 +57,12 @@ type Evolve8<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
           ? E[K] extends AnyFunction
             ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
               ? ExtractFunctionReturnValue<E[K]>
-              : ExtractFunctionArguments<E[K]>[0] extends I[K]
+              : [I[K]] extends ExtractFunctionArguments<E[K]>
                 ? ExtractFunctionReturnValue<E[K]>
-                : BadEvolve
-            : Evolve9< E[ K ], I[ K ], BadEvolve, WrongKeys >
+                : BadEvolve<I[K]>
+            : E[K] extends number | string | symbol
+                ? EvolvingValueNotAFunction<I[K]>
+                : Evolve9< E[ K ], I[ K ]>
           : I[K]
       }
   'done': ContainsAny < [ E, I], {}, WrongKeys>,
@@ -61,7 +71,7 @@ type Evolve8<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
     ? 'evaluate'
     : 'done'
 ]
-type Evolve7<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
+type Evolve7<E extends AnyObject, I extends AnyObject > = {
   'evaluate': ContainsType<[E, I], {}> extends true
     ? {}
     : {
@@ -69,10 +79,12 @@ type Evolve7<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
           ? E[K] extends AnyFunction
             ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
               ? ExtractFunctionReturnValue<E[K]>
-              : ExtractFunctionArguments<E[K]>[0] extends I[K]
+              : [I[K]] extends ExtractFunctionArguments<E[K]>
                 ? ExtractFunctionReturnValue<E[K]>
-                : BadEvolve
-            : Evolve8< E[ K ], I[ K ], BadEvolve, WrongKeys >
+                : BadEvolve<I[K]>
+            : E[K] extends number | string | symbol
+                ? EvolvingValueNotAFunction<I[K]>
+                : Evolve8< E[ K ], I[ K ]>
           : I[K]
       }
   'done': ContainsAny < [ E, I], {}, WrongKeys>,
@@ -81,7 +93,7 @@ type Evolve7<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
     ? 'evaluate'
     : 'done'
 ]
-type Evolve6<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
+type Evolve6<E extends AnyObject, I extends AnyObject > = {
   'evaluate': ContainsType<[E, I], {}> extends true
     ? {}
     : {
@@ -89,10 +101,12 @@ type Evolve6<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
           ? E[K] extends AnyFunction
             ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
               ? ExtractFunctionReturnValue<E[K]>
-              : ExtractFunctionArguments<E[K]>[0] extends I[K]
+              : [I[K]] extends ExtractFunctionArguments<E[K]>
                 ? ExtractFunctionReturnValue<E[K]>
-                : BadEvolve
-            : Evolve7< E[ K ], I[ K ], BadEvolve, WrongKeys >
+                : BadEvolve<I[K]>
+            : E[K] extends number | string | symbol
+                ? EvolvingValueNotAFunction<I[K]>
+                : Evolve7< E[ K ], I[ K ]>
           : I[K]
       }
   'done': ContainsAny < [ E, I], {}, WrongKeys>,
@@ -101,7 +115,7 @@ type Evolve6<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
     ? 'evaluate'
     : 'done'
 ]
-type Evolve5<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
+type Evolve5<E extends AnyObject, I extends AnyObject > = {
   'evaluate': ContainsType<[E, I], {}> extends true
     ? {}
     : {
@@ -109,10 +123,12 @@ type Evolve5<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
           ? E[K] extends AnyFunction
             ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
               ? ExtractFunctionReturnValue<E[K]>
-              : ExtractFunctionArguments<E[K]>[0] extends I[K]
+              : [I[K]] extends ExtractFunctionArguments<E[K]>
                 ? ExtractFunctionReturnValue<E[K]>
-                : BadEvolve
-            : Evolve6< E[ K ], I[ K ], BadEvolve, WrongKeys >
+                : BadEvolve<I[K]>
+            : E[K] extends number | string | symbol
+                ? EvolvingValueNotAFunction<I[K]>
+                : Evolve6< E[ K ], I[ K ]>
           : I[K]
       }
   'done': ContainsAny < [ E, I], {}, WrongKeys>,
@@ -121,7 +137,7 @@ type Evolve5<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
     ? 'evaluate'
     : 'done'
 ]
-type Evolve4<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
+type Evolve4<E extends AnyObject, I extends AnyObject > = {
   'evaluate': ContainsType<[E, I], {}> extends true
     ? {}
     : {
@@ -129,10 +145,12 @@ type Evolve4<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
           ? E[K] extends AnyFunction
             ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
               ? ExtractFunctionReturnValue<E[K]>
-              : ExtractFunctionArguments<E[K]>[0] extends I[K]
+              : [I[K]] extends ExtractFunctionArguments<E[K]>
                 ? ExtractFunctionReturnValue<E[K]>
-                : BadEvolve
-            : Evolve5< E[ K ], I[ K ], BadEvolve, WrongKeys >
+                : BadEvolve<I[K]>
+            : E[K] extends number | string | symbol
+                ? EvolvingValueNotAFunction<I[K]>
+                : Evolve5< E[ K ], I[ K ]>
           : I[K]
       }
   'done': ContainsAny < [ E, I], {}, WrongKeys>,
@@ -141,7 +159,7 @@ type Evolve4<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
     ? 'evaluate'
     : 'done'
 ]
-type Evolve3<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
+type Evolve3<E extends AnyObject, I extends AnyObject > = {
   'evaluate': ContainsType<[E, I], {}> extends true
     ? {}
     : {
@@ -149,10 +167,12 @@ type Evolve3<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
           ? E[K] extends AnyFunction
             ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
               ? ExtractFunctionReturnValue<E[K]>
-              : ExtractFunctionArguments<E[K]>[0] extends I[K]
+              : [I[K]] extends ExtractFunctionArguments<E[K]>
                 ? ExtractFunctionReturnValue<E[K]>
-                : BadEvolve
-            : Evolve4< E[ K ], I[ K ], BadEvolve, WrongKeys >
+                : BadEvolve<I[K]>
+              : E[K] extends number | string | symbol
+                ? EvolvingValueNotAFunction<I[K]>
+                : Evolve4< E[ K ], I[ K ]>
           : I[K]
       }
   'done': ContainsAny < [ E, I], {}, WrongKeys>,
@@ -161,7 +181,7 @@ type Evolve3<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
     ? 'evaluate'
     : 'done'
 ]
-type Evolve2<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
+type Evolve2<E extends AnyObject, I extends AnyObject > = {
   'evaluate': ContainsType<[E, I], {}> extends true
     ? {}
     : {
@@ -169,10 +189,12 @@ type Evolve2<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
           ? E[K] extends AnyFunction
             ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
               ? ExtractFunctionReturnValue<E[K]>
-              : ExtractFunctionArguments<E[K]>[0] extends I[K]
+              : [I[K]] extends ExtractFunctionArguments<E[K]>
                 ? ExtractFunctionReturnValue<E[K]>
-                : BadEvolve
-            : Evolve3< E[ K ], I[ K ], BadEvolve, WrongKeys >
+                : BadEvolve<I[K]>
+            : E[K] extends number | string | symbol
+                ? EvolvingValueNotAFunction<I[K]>
+                : Evolve3< E[ K ], I[ K ]>
           : I[K]
       }
   'done': ContainsAny < [ E, I], {}, WrongKeys>,
@@ -183,7 +205,7 @@ type Evolve2<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolv
 ]
 
 // Lazy evaluated to prevent hangups
-export type Evolve<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = {
+export type Evolve<E extends AnyObject, I extends AnyObject > = {
   'evaluate': ContainsType<[E, I], {}> extends true
     ? {}
     : {
@@ -191,10 +213,12 @@ export type Evolve<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR:
           ? E[K] extends AnyFunction
             ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
               ? ExtractFunctionReturnValue<E[K]>
-              : ExtractFunctionArguments<E[K]>[0] extends I[K]
+              : [I[K]] extends ExtractFunctionArguments<E[K]>
                 ? ExtractFunctionReturnValue<E[K]>
-                : BadEvolve
-            : Evolve2< E[ K ], I[ K ], BadEvolve, WrongKeys >
+                : BadEvolve<I[K]>
+            : E[K] extends number | string | symbol
+              ? EvolvingValueNotAFunction<I[K]>
+              : Evolve2< E[ K ], I[ K ]>
           : I[K]
       }
   'done': ContainsAny < [ E, I], {}, WrongKeys>,
@@ -205,16 +229,14 @@ export type Evolve<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR:
 ]
 
 // straight-foward recursion
-export type EvolveRecursive<E extends AnyObject, I extends AnyObject, BadEvolve = 'ERROR: Evolving / left-side function argument type does not match right-side corresponding value type', WrongKeys = 'ERROR: All keys on the type for the left-side object must be in the right-side object' > = KeySubset < E, I > extends true
+export type EvolveRecursive<E extends AnyObject, I extends AnyObject, FirstArgument = ExtractFunctionArguments<E[keyof E]>[0] > = KeySubset < E, I > extends true
   ? {
       [ K in keyof I ]: K extends keyof E
         ? E[K] extends AnyFunction
-          ? IsAny<ExtractFunctionArguments<E[K]>[0]> extends true
+          ? [I[K]] extends ExtractFunctionArguments<E[K]>
             ? ExtractFunctionReturnValue<E[K]>
-            : ExtractFunctionArguments<E[K]>[0] extends I[K]
-              ? ExtractFunctionReturnValue<E[K]>
-              : BadEvolve
-          : Evolve2< E[ K ], I[ K ], BadEvolve, WrongKeys >
+            : BadEvolve<I[K]>
+          : EvolveRecursive< E[ K ], I[ K ]>
         : I[K]
     }
-  : ContainsAny < [ E, I], {}, WrongKeys>
+  : ContainsAny < [ E, I ], {}, WrongKeys >

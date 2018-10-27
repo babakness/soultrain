@@ -2,6 +2,8 @@
 
 import { Tail } from '../helper-types'
 
+export function tail<T extends [any, ...any[]]>( arr: T ): Tail<T>
+export function tail<T>( arr: T[] ): T[]
 /**
  * Get all but the head element of an array
  * @param arr array to retrieve tail from
@@ -10,8 +12,6 @@ import { Tail } from '../helper-types'
  * tail( [ 1 , 2,  3, 4 ] ) // [ 2, 3, 4 ]
  *
  */
-export function tail<T extends [any, ...any[]]>( arr: T ): Tail<T>
-export function tail<T>( arr: T[] ): T[]
 export function tail( arr ) {
   return arr.slice( 1 )
 }

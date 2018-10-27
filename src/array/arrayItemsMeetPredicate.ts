@@ -11,6 +11,9 @@ const _arrayItemsMeetPredicate = untypedCurry( <A>( predicate: Predicate2<A, A>,
   }
   return true
 } )
+
+export function arrayItemsMeetPredicate<A>( predicate: Predicate2<A, A>, arr: A[] ): boolean
+export function arrayItemsMeetPredicate<A>( predicate: Predicate2<A, A> ): ( arr: A[] ) => boolean
 /**
  * Applies a predicate over an array and returns true if all predicates are true;
  * if not it returns true.
@@ -21,8 +24,6 @@ const _arrayItemsMeetPredicate = untypedCurry( <A>( predicate: Predicate2<A, A>,
  * arrayItemsMeetPredicate( (current,previous) => current > previous , [1,2,3,4,2]) // false
  * arrayItemsMeetPredicate( (current,previous) => current > previous , [1,2,3,4]) //true
  */
-export function arrayItemsMeetPredicate<A>( predicate: Predicate2<A, A>, arr: A[] ): boolean
-export function arrayItemsMeetPredicate<A>( predicate: Predicate2<A, A> ): ( arr: A[] ) => boolean
 export function arrayItemsMeetPredicate( ...args ) {
   return _arrayItemsMeetPredicate( ...args )
 }

@@ -2,6 +2,7 @@
 export * from './untypedCurry'
 export * from './pipeline'
 export * from './pipe'
+export * from './parallelObj'
 export * from './parallelLoose'
 export * from './parallel'
 export * from './not'

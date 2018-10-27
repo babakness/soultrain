@@ -12,12 +12,6 @@ interface ConcatCurried<A extends [any, ...any[]]> {
   <B extends any[]>( item: B ): Array < ValueOf<A> | ValueOf < B >>
 }
 
-/**
- * Calls `concat` on an array or a concattable. Also typed to work well with tuples.
- *
- * @param arr
- * @param item
- */
 export function concat<A extends [any, ...any[]], B extends [any, ...any[]]>( acc: A, item: B ): Concat<A, B>
 export function concat<A extends [any, ...any[]]>( acc: A ): ConcatCurried<A>
 export function concat<A extends [any, ...any[]], B extends any>( acc: A, item: B ): B extends any[] ? Array< ValueOf<A> | ValueOf<B>> : Concat<A, [B]>
@@ -33,6 +27,12 @@ export function concat<A>( acc: Concattable<A> ): ( item: A ) => Concattable<A>
 export function concat<A >( arr: A[], item: A ): A[]
 export function concat<A >( arr: A[] ): ( item: A )  => A[]
 export function concat<A extends Array<{}>, B extends any >( arr: A ): ( item: B ) => Array<A & B>
+/**
+ * Calls `concat` on an array or a concattable. Also typed to work well with tuples.
+ *
+ * @param arr
+ * @param item
+ */
 export function concat<A>( ...args ) {
   return untypedCurry( ( a, b ) => a.concat( b ) )( ...args )
 }

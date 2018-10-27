@@ -1,6 +1,6 @@
 /** @module pairs/pairKeys.ts */
 
-import { mapIterable } from '../iterables'
+import { mapIterable } from '../iterable/mapIterable'
 /**
  * Takes a tuple pair and returns the first (key) values in an array
  * @param entries array of tuples

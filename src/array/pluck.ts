@@ -1,6 +1,12 @@
 /** @module array/pluck.ts */
 
 import { untypedCurry } from '../function/untypedCurry'
+export function pluck<A, B extends keyof {
+  [i in number]: any;
+}>( key: B, arr: A[][] ): Array<A | undefined>
+export function pluck<A, B extends keyof A>( key: B, arr: A[] ): Array<A[B]>
+export function pluck<B extends number>( key: number ): <A>( arr: A[][] ) => Array<A | undefined>
+// export function pluck<B extends string,C,D extends Record<B,C>,E extends keyof C>(key: B) :(arr:C[]) => {[H in B ]?: C[E]}[B][]
 /**
  * Takes an key (or index) and an array of arrays or objects and returns
  * the selected key from each row
@@ -10,12 +16,6 @@ import { untypedCurry } from '../function/untypedCurry'
  * pluck('a',[ {a:1,b:2}, {a:3,b:4}])
  * // => [1,3]
  */
-export function pluck<A, B extends keyof {
-  [i in number]: any;
-}>( key: B, arr: A[][] ): Array<A | undefined>
-export function pluck<A, B extends keyof A>( key: B, arr: A[] ): Array<A[B]>
-export function pluck<B extends number>( key: number ): <A>( arr: A[][] ) => Array<A | undefined>
-// export function pluck<B extends string,C,D extends Record<B,C>,E extends keyof C>(key: B) :(arr:C[]) => {[H in B ]?: C[E]}[B][]
 export function pluck<A extends string, B = [{
   [K in A]?: any;
 }]>( keys: A ): ( arr: B ) => B

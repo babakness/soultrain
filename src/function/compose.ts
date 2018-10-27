@@ -4,16 +4,6 @@ import { head } from '../array/head'
 import { tail } from '../array/tail'
 import { ExtractFunctionArguments, ExtractFunctionReturnValue } from '../helper-types'
 
-/**
- * Functional composition, chain applies functions starting from the end and moves left
- *
- * @example
- * const myFormula = compose( add(5), multiply(2) )
- * myFormula(10) // 25
- *
- * :: fn |> ... f3 |> f2 |> f1
- */
-
 export function compose<Fn>( entry: Fn ): ( ...args: ExtractFunctionArguments<Fn> ) => ExtractFunctionReturnValue<Fn>
 export function compose<Fn, A>( first: ( a: ExtractFunctionReturnValue<Fn> ) => A, entry: Fn ): ( ...args: ExtractFunctionArguments<Fn> ) => A
 export function compose<Fn, A, B>( ab: ( a: A ) => B, first: ( a: ExtractFunctionReturnValue<Fn> ) => A, entry: Fn ): ( ...args: ExtractFunctionArguments<Fn> ) => B
@@ -41,6 +31,15 @@ export function compose<Fn, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R
 export function compose<Fn, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X>( wx: ( w: W ) => X, vw: ( v: V ) => W, uv: ( u: U ) => V, tu: ( t: T ) => U, st: ( s: S ) => T, rs: ( r: R ) => S, qr: ( q: Q ) => R, pq: ( p: P ) => Q, op: ( o: O ) => P, no: ( n: N ) => O, mn: ( m: M ) => N, lm: ( l: L ) => M, kl: ( k: K ) => L, jk: ( j: J ) => K, ij: ( i: I ) => J, hi: ( h: H ) => I, gh: ( g: G ) => H, fg: ( f: F ) => G, ef: ( e: E ) => F, de: ( d: D ) => E, cd: ( c: C ) => D, bc: ( b: B ) => C, ab: ( a: A ) => B, first: ( a: ExtractFunctionReturnValue<Fn> ) => A, entry: Fn ): ( ...args: ExtractFunctionArguments<Fn> ) => X
 export function compose<Fn, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y>( xy: ( x: X ) => Y, wx: ( w: W ) => X, vw: ( v: V ) => W, uv: ( u: U ) => V, tu: ( t: T ) => U, st: ( s: S ) => T, rs: ( r: R ) => S, qr: ( q: Q ) => R, pq: ( p: P ) => Q, op: ( o: O ) => P, no: ( n: N ) => O, mn: ( m: M ) => N, lm: ( l: L ) => M, kl: ( k: K ) => L, jk: ( j: J ) => K, ij: ( i: I ) => J, hi: ( h: H ) => I, gh: ( g: G ) => H, fg: ( f: F ) => G, ef: ( e: E ) => F, de: ( d: D ) => E, cd: ( c: C ) => D, bc: ( b: B ) => C, ab: ( a: A ) => B, first: ( a: ExtractFunctionReturnValue<Fn> ) => A, entry: Fn ): ( ...args: ExtractFunctionArguments<Fn> ) => Y
 export function compose<Fn, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z>( yz: ( y: Y ) => Z, xy: ( x: X ) => Y, wx: ( w: W ) => X, vw: ( v: V ) => W, uv: ( u: U ) => V, tu: ( t: T ) => U, st: ( s: S ) => T, rs: ( r: R ) => S, qr: ( q: Q ) => R, pq: ( p: P ) => Q, op: ( o: O ) => P, no: ( n: N ) => O, mn: ( m: M ) => N, lm: ( l: L ) => M, kl: ( k: K ) => L, jk: ( j: J ) => K, ij: ( i: I ) => J, hi: ( h: H ) => I, gh: ( g: G ) => H, fg: ( f: F ) => G, ef: ( e: E ) => F, de: ( d: D ) => E, cd: ( c: C ) => D, bc: ( b: B ) => C, ab: ( a: A ) => B, first: ( a: ExtractFunctionReturnValue<Fn> ) => A, entry: Fn ): ( ...args: ExtractFunctionArguments<Fn> ) => Z
+/**
+ * Functional composition, chain applies functions starting from the end and moves left
+ *
+ * @example
+ * const myFormula = compose( add(5), multiply(2) )
+ * myFormula(10) // 25
+ *
+ * :: fn |> ... f3 |> f2 |> f1
+ */
 export function compose( ...funcs ) {
   return ( arg ) => tail( funcs ).reduceRight( ( acc, item ) => item( acc ), head( funcs )( arg ) )
 }

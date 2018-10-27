@@ -462,7 +462,7 @@ export type Literal<A extends BasicTypes, B extends [A, ...A[]]= [A, ...A[]], C 
 export type KeySubset<E, I> = Exclude< keyof E, Extract<keyof E, keyof I> > extends never ? true : false // extends keyof E ? keyof E : never
 export type HashKey =  'uuS*4_G]Sv<4eu-P""1giCjl3K~nLl[m>ePO9m/1ys?7:LH&A)MCr:a8g{X};8b'
 export type IsAny<O, T = true, F = false> = HashKey extends O
-  ? number extends O
+  ? any extends O
     ? T
     : F
   : F

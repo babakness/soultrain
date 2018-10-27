@@ -1,6 +1,8 @@
 /** @module array/headTuple.ts */
 
 import { BasicTypes, Literal, ValueAt } from '../helper-types'
+
+export function headTuple<_A extends BasicTypes, A extends Literal<_A>>( arr: A ): ValueAt<A, 0>
 /**
  * Return first item in array, specifically tuned for literal tuples
  *
@@ -10,7 +12,6 @@ import { BasicTypes, Literal, ValueAt } from '../helper-types'
  * head( [ 1, 2, 3 ] ) // 1
  *
  */
-export function headTuple<_A extends BasicTypes, A extends Literal<_A>>( arr: A ): ValueAt<A, 0>
 export function headTuple( arr ) {
   return arr[ 0 ]
 }

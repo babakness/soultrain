@@ -1,7 +1,7 @@
 /** @module pairs/fromPairs.ts */
 
 import { Pairs } from '../helper-types'
-import { assoc } from '../object'
+import { assoc_ } from '../object'
 /**
  * Converts an array of entry pairs into an obj
  * @param entries array of pairs
@@ -9,7 +9,7 @@ import { assoc } from '../object'
  * fromPairs([ ['a',1 ], ['b', 2]])
  * // => {a:1, b: 2}
  */
-export const fromPairs = <K extends string | number, V>( entries: Pairs<K, V> ): Record<string, V> => entries.reduce( ( acc, [ k, v ] ) => assoc( k as string, v, acc ), {} )
+export const fromPairs = <K extends string | number, V>( entries: Pairs<K, V> ): Record<string, V> => entries.reduce( ( acc, [ k, v ] ) => assoc_( k as string, v, acc ), {} )
 
 // interface KeyValuePair<K, V> extends Array<K | V> {
 //   0: K

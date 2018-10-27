@@ -3,6 +3,8 @@
 import { times } from '../flow'
 import { untypedCurry } from '../function/untypedCurry'
 import { Equals } from '../helper-types'
+export function mapArray<A, Fn extends ( item: A ) => any>( fn: Fn, arr: A[] ): Fn extends ( item: any ) => infer B ? B[] : never
+export function mapArray<Fn extends ( item: any ) => any>( fn: Fn ): <A extends ( Fn extends ( item: infer B ) => any ? B : never ) >( arr: A[] ) => Fn extends ( item: A ) => infer B ? B[] : never
 /**
  * Maps / applies a function over the items in an array
  * @param fn function applied over items in array, must match array item type
@@ -11,8 +13,6 @@ import { Equals } from '../helper-types'
  * mapArray( (x: number) => x + 1, [1,2,3])
  * //=> [2,3,4]
  */
-export function mapArray<A, Fn extends ( item: A ) => any>( fn: Fn, arr: A[] ): Fn extends ( item: any ) => infer B ? B[] : never
-export function mapArray<Fn extends ( item: any ) => any>( fn: Fn ): <A extends ( Fn extends ( item: infer B ) => any ? B : never ) >( arr: A[] ) => Fn extends ( item: A ) => infer B ? B[] : never
 export function mapArray( ...args ) {
   return untypedCurry( ( fn, arr ) => times( ( index ) => fn( arr[ index ] ), arr.length ) )( ...args )
 }

@@ -2,11 +2,6 @@
 
 import { Complement, Curried2, Curried3, Curried4, Curried5, Curried6, Curried7, Curried8, Curried9, Function1, Function2, Function3, Function4, Function5, Function6, Function7, Function8, Function9, Function_21, Function_211, Function_2111, Function_31, Function_311, Function_41, Function_51, Function_61 } from '../helper-types'
 import { defineFunctionProperties } from './defineFunctionProperties'
-/**
- * Take a function, then its arguements, then return the boolean opposite of said function.
- * Returns a curried function.
- * :: (...args) -> (fn) -> boolean
- */
 
 export function complementCurry<A, B extends boolean>( f: Function1<A, B> ): ( Function1<A, Complement<B>> )
 export function complementCurry<A, B, C extends boolean>( f: Function2<A, B, C> ): ( Curried2<A, B, Complement<C>> & Function2<A, B, Complement<C>> )
@@ -19,6 +14,11 @@ export function complementCurry<A, B, C, D, E, F, G extends boolean>( f: Functio
 export function complementCurry<A, B, C, D, E, F, G, H extends boolean>( f: Function7<A, B, C, D, E, F, G, H> ): ( Curried7<A, B, C, D, E, F, G, Complement<H>> & Function7<A, B, C, D, E, F, G, Complement<H>> & Function_61<A, B, C, D, E, F, G, Complement<H>> )
 export function complementCurry<A, B, C, D, E, F, G, H, I extends boolean>( f: Function8<A, B, C, D, E, F, G, H, I> ): Curried8<A, B, C, D, E, F, G, H, Complement<I>>
 export function complementCurry<A, B, C, D, E, F, G, H, I, J extends boolean>( f: Function9<A, B, C, D, E, F, G, H, I, J> ): Curried9<A, B, C, D, E, F, G, H, I, Complement<J>>
+/**
+ * Take a function, then its arguements, then return the boolean opposite of said function.
+ * Returns a curried function.
+ * :: (...args) -> (fn) -> boolean
+ */
 export function complementCurry( fn, ...args: any[] ) {
   return args.length >= fn.length ? !fn( ...args ) : defineFunctionProperties( complementCurry.bind( null, fn, ...args ), {
     length: fn.length - args.length,

@@ -2,6 +2,8 @@
 
 import { curry } from './function/curry'
 import { untypedCurry } from './function/untypedCurry'
+export function add( a: number, b: number ): number
+export function add( a: number ): ( b: number ) => number
 /**
  * Adds two numbers. Curried.
  *
@@ -11,8 +13,6 @@ import { untypedCurry } from './function/untypedCurry'
  *
  * :: n1 -> n2 -> n3
  */
-export function add( a: number, b: number ): number
-export function add( a: number ): ( b: number ) => number
 export function add( ...args ) {
   return untypedCurry( ( a: number, b: number ): number => a + b )( ...args )
 }

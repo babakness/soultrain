@@ -8,6 +8,7 @@ declare module 'fp-ts/lib/HKT' {
 
 export * from './array/index'
 export * from './function/index'
+export * from './iterable/index'
 export * from './pairs/index'
 export * from './type/index'
 
@@ -19,7 +20,6 @@ export * from './flow'
 export * from './functor-helpers'
 export * from './helper-types'
 export * from './index'
-export * from './iterables'
 export * from './lens-functions'
 export * from './lens'
 export * from './logging'

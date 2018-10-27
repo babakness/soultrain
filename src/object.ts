@@ -14,7 +14,7 @@ import { KeyTypes, Unpacked, ValueOf} from './helper-types'
 export const pluckObj = ( ...itemsToPluck: string[] ) => ( obj: {} ) =>
   Object.keys( obj )
     .filter( ( i ) => itemsToPluck.indexOf( i ) > -1 )
-    .reduce( ( acc, item ) => assoc( item )( obj[ item ] )( acc ), {} )
+    .reduce( ( acc, item ) => assoc_( item )( obj[ item ] )( acc ), {} )
 
 /**
  * prop
@@ -55,6 +55,9 @@ export const shallowProp = curry( ( _prop: string, obj: object ): string | numbe
  */
 export const flippedProp = <T, K extends keyof T>( obj: T ) => ( _prop: K ) => obj[ _prop ]
 
+export function assoc_ <P extends string|number|symbol, V, O>( prop: P, value: V, obj: O ): {[p in P]: V} & O
+export function assoc_ <P extends string|number|symbol, V>( prop: P, value: V ): <O>( obj: O ) =>    {[p in P]: V} & O
+export function assoc_ <P extends string|number|symbol>( prop: P ): <V>( value: V ) => <O>( obj: O ) =>  {[p in P]: V} & O
 /**
  * Extends object with key/value pair. Curried
  *
@@ -63,24 +66,31 @@ export const flippedProp = <T, K extends keyof T>( obj: T ) => ( _prop: K ) => o
  *
  * :: k -> v -> o -> {...o, {[k]: v}} }
  */
-export function assoc <P extends string|number|symbol, V, O>( prop: P, value: V, obj: O ): {[p in P]: V} & O
-export function assoc <P extends string|number|symbol, V>( prop: P, value: V ): <O>( obj: O ) =>    {[p in P]: V} & O
-export function assoc <P extends string|number|symbol>( prop: P ): <V>( value: V ) => <O>( obj: O ) =>  {[p in P]: V} & O
-export function assoc( ...args ) {
-  return untypedCurry(
-    ( _prop, value, obj ) => Object.assign( {}, obj, {[ _prop ]: value} ),
-  )( ...args )
-}
-
-export function assoc_ <O extends object, P extends string|number|symbol, V>( obj: O, prop: P, value: V ): {[p in P]: V} & O
-export function assoc_ <O extends object, P extends string|number|symbol>( obj: O, prop: P ): <V>( value: V ) =>    {[p in P]: V} & O
-export function assoc_ <O extends object>( obj: O ): <P extends string|number|symbol>( prop: P ) => <V>( value: V ) =>  {[p in P]: V} & O
 export function assoc_( ...args ) {
   return untypedCurry(
     ( _prop, value, obj ) => Object.assign( {}, obj, {[ _prop ]: value} ),
   )( ...args )
 }
 
+export function assoc <O extends object, P extends string|number|symbol, V>( obj: O, prop: P, value: V ): {[p in P]: V} & O
+export function assoc <O extends object, P extends string|number|symbol>( obj: O, prop: P ): <V>( value: V ) =>    {[p in P]: V} & O
+export function assoc <O extends object>( obj: O ): <P extends string|number|symbol>( prop: P ) => <V>( value: V ) =>  {[p in P]: V} & O
+/**
+ * Extends object with key/value pair. Curried
+ *
+ * @example
+ * assoc( 'b', 2, { a: 1 } ) // { a: 1, b: 2 }
+ *
+ * :: k -> v -> o -> {...o, {[k]: v}} }
+ */
+export function assoc( ...args ) {
+  return untypedCurry(
+    ( obj, _prop, value ) => Object.assign( {}, obj, {[ _prop ]: value} ),
+  )( ...args )
+}
+
+export function assign<T, S>( target: T, source: S ): S & T
+export function assign<T>( target: T ): <S>( source: S ) => S & T
 /**
  * Extends a target object with a source
  *
@@ -89,8 +99,6 @@ export function assoc_( ...args ) {
  *
  * :: o1-> o2 -> {...o1, ...o2 }
  */
-export function assign<T, S>( target: T, source: S ): S & T
-export function assign<T>( target: T ): <S>( source: S ) => S & T
 export function assign( ...args ) {
   return untypedCurry( ( target, source ) => Object.assign( {}, target, source ) )( ...args )
 }
@@ -110,7 +118,6 @@ interface KeyValuePair<K, V> extends Array<K | V> {
  *
  * :: ( k1, k2, ... k3 ) -> o -> o[ k1 ][ k2 ][ k3 ]
  */
-
 export const _pathValue = untypedCurry( ( path: string[], obj: {} ) => path.reduce( ( acc, item ) => acc.hasOwnProperty( item ) ? acc[ item ] : undefined, obj ) )
 
 // getPathValue(['a'],{a:1})
@@ -138,6 +145,9 @@ export function getPathValue<L, K1 extends keyof L, K2 extends keyof L[K1], K3 e
 // export function pathValue<L, K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8]>( path: [K1, K2, K3, K4, K5, K6, K7, K8, K9]): ( obj: L) => L[K1][K2][K3][K4][K5][K6][K7][K8][K9]
 // export function pathValue<L, K1 extends keyof L, K2 extends keyof L[K1], K3 extends keyof L[K1][K2], K4 extends keyof L[K1][K2][K3], K5 extends keyof L[K1][K2][K3][K4], K6 extends keyof L[K1][K2][K3][K4][K5], K7 extends keyof L[K1][K2][K3][K4][K5][K6], K8 extends keyof L[K1][K2][K3][K4][K5][K6][K7], K9 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8], K10 extends keyof L[K1][K2][K3][K4][K5][K6][K7][K8][K9]>( path: [K1, K2, K3, K4, K5, K6, K7, K8, K9, K10] ): ( obj: L) => L[K1][K2][K3][K4][K5][K6][K7][K8][K9][K10]
 // export function getPathValue<KS extends GeneralObjectPath, L>(path: KS, obj: L): unknown
+/**
+ * Todo
+ */
 export function getPathValue( ...args ) {
   return _pathValue( ...args )
 }
@@ -150,5 +160,12 @@ export function getPathValue( ...args ) {
  */
 export const valueAt = <G, K extends keyof G>( obj: G, k: K ): G[K] => obj[ k ]
 
+/**
+ * Todo
+ */
 export const keys = <V>( obj: { [k: string]: V } ): string[] => Object.keys( obj )
+
+/**
+ * Todo
+ */
 export const values = <V>( obj: { [k: string]: V } ): V[] => Object.values ? Object.values( obj ) : Object.keys( obj ).map( ( key ) => obj[ key ] )

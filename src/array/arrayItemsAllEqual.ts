@@ -1,6 +1,9 @@
 /** @module array/arrayItemsAllEqual.ts */
 
 import { untypedCurry } from '../function/untypedCurry'
+
+export function arrayItemsAllEqual<A>( value: A, arr: A[] ): boolean
+export function arrayItemsAllEqual<A>( value: A ): ( arr: A[] ) => boolean
 /**
  * Check to see if every item in an array is equal to specific value
  * @param value
@@ -10,8 +13,6 @@ import { untypedCurry } from '../function/untypedCurry'
  * arrayItemsAllEqual(1,[1,2,2]) // false
  * arrayItemsAllEqual(1,[1,1,1]) // true
  */
-export function arrayItemsAllEqual<A>( value: A, arr: A[] ): boolean
-export function arrayItemsAllEqual<A>( value: A ): ( arr: A[] ) => boolean
 export function arrayItemsAllEqual( ...args ) {
   return untypedCurry(
     ( value, arr ) => {

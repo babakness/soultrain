@@ -15,8 +15,11 @@ type Entries<O> = {
     : IsArray<O, 'array', 'object'>
 ]
 
-type sf = Entries < {a: 1, b: 2} >
+// type sf = Entries < {a: 1, b: 2} >
 
+/**
+ * Todo
+ */
 export const entries = <A extends string|{[k in ( string|number )]: any}>( obj: A ): Entries<A> =>
   Object.entries
     ? Object.entries( obj ) as Entries<A>

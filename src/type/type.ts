@@ -1,5 +1,7 @@
 /** @module type/type.ts */
 
+import head from '../array/head'
+
 /**
  * Returns the string value of the primative object given.
  * @param obj object to inspect primative type of
@@ -12,8 +14,9 @@ export const type = ( obj: any ): 'Set'| 'Map' | 'WeakMap' | 'Object' | 'Number'
   ? 'Null'
   : obj === undefined
     ? 'Undefined'
-    : Object.prototype.toString.call( obj )
+    // tslint:disable-next-line:ter-computed-property-spacing
+    : head( Object.prototype.toString.call( obj ).match( /[A-Z][a-z]*/ ) )
 
 export default type
 
-type P = 1 extends object ? true : false
+// type P = 1 extends object ? true : false

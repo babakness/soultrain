@@ -6,6 +6,9 @@ interface ReduceArrayCurried<A, V> {
   ( initialValue: V ): ( arr: A[] ) => V
 }
 
+export function reduceArray<A, V>( reducerFn: ( acc: V, item: A ) => V, initialValue: V, arr: A[] ): V
+export function reduceArray<A, V>( fn: ( acc: V, item: A ) => V, initialValue: V ): ( arr: A[] ) => V
+export function reduceArray<A, V>( fn: ( acc: V, item: A ) => V ): ReduceArrayCurried<A, V>
 /**
  * Reduce an array
  *
@@ -16,9 +19,6 @@ interface ReduceArrayCurried<A, V> {
  * reduceArray( (acc,item) => acc + item, 0, [1,2,3,4] )
  * // => 10
  */
-export function reduceArray<A, V>( reducerFn: ( acc: V, item: A ) => V, initialValue: V, arr: A[] ): V
-export function reduceArray<A, V>( fn: ( acc: V, item: A ) => V, initialValue: V ): ( arr: A[] ) => V
-export function reduceArray<A, V>( fn: ( acc: V, item: A ) => V ): ReduceArrayCurried<A, V>
 export function reduceArray( ...args ) {
   return untypedCurry( ( fn, initialValue, arr ) => arr.reduce( fn, initialValue ) )( ...args )
 }

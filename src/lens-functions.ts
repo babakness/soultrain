@@ -63,6 +63,9 @@ export function lens<L, K1 extends keyof L, K2 extends keyof L[K1], K3 extends k
 export function lens<P, PK extends keyof P, D, A, L>( path: P[], fn: ( pathData: D ) => A, defaultValue: A ): ( source: L ) => L
 export function lens<P, PK extends keyof P, D, A, L>( path: P[], fn: ( pathData: D ) => A ): ( defaultValue: A ) => ( source: L ) => L
 export function lens<P, PK extends keyof P, D, A, L>( path: P[] ): <B extends A>( fn: ( pathData: D ) => B ) => ( defaultValue: B ) => ( source: L ) => L
+/**
+ * Todo
+ */
 export function lens( ...args ) {
   return untypedCurry( ( path, fn, defaultValue, source ) => _lens( path, fn, defaultValue, source ) )( ...args )
 }

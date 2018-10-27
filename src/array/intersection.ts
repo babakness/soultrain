@@ -8,9 +8,18 @@ import unique from './unique'
 
 const uniqueContains = pipe( unique, contains )
 
-export function intersection< A extends any[], B extends any[]>( first: A, second: B ): Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
-export function intersection< A extends any[]>( first: A ): <B extends any[]>( second: B ) => Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
-export function intersection< A extends any[]>( first: A ): <B extends any[]>( second: B ) => Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
+export function intersection<A extends any[], B extends any[]>( first: A, second: B ): Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
+export function intersection<A extends any[]>( first: A ): <B extends any[]>( second: B ) => Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
+export function intersection<A extends any[]>( first: A ): <B extends any[]>( second: B ) => Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
+/**
+ * Combines two lists into a set with no duplicates. Objects and Arrays are compared in terms of value equality, not reference equality.
+ * @param first first array to intersect
+ * @param second second array to intersect
+ * @sig a[] -> b[] -> (a|b)[]
+ * @example
+ * intersection([1,2,3,4], [3,4,5,6]); //=> [3, 4]
+ * intersection([{a:1},{b:2}], [{a:2}, {b:2}]) // => [{b:2}]
+ */
 export function intersection( ...args ) {
   return untypedCurry(
       ( first, second ) => filter(
@@ -19,10 +28,9 @@ export function intersection( ...args ) {
       ),
     )( ...args )
 }
-
-export function difference< A extends any[], B extends any[]>( first: A, second: B ): Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
-export function difference< A extends any[]>( first: A ): <B extends any[]>( second: B ) => Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
-export function difference< A extends any[]>( first: A ): <B extends any[]>( second: B ) => Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
+export function difference<A extends any[], B extends any[]>( first: A, second: B ): Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
+export function difference<A extends any[]>( first: A ): <B extends any[]>( second: B ) => Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
+export function difference<A extends any[]>( first: A ): <B extends any[]>( second: B ) => Array<Extract<FlattenOnce<A>, FlattenOnce<B>>>
 export function difference( ...args ) {
   return untypedCurry(
       ( first, second ) => filter(

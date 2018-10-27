@@ -6,13 +6,6 @@ import { last } from '../array/last'
 import { BasicTypes, Literal } from '../helper-types'
 import { safeHead, safeLast } from '../maybe-functions'
 
-/**
- * A function similar to `pipe`, however, it starts with the input parameter first.
- *
- * @example
- * pipeline( 10, multiply(2), add(5) ) // 25
- * :: input |> f1 |> f2 |> f3 |> ...fn
- */
 export function pipeline<_A extends BasicTypes, A extends Literal<_A>, B>( a: A, ab: ( a: A ) => B ): B
 export function pipeline<_A extends BasicTypes, A extends Literal<_A>, B, C>( a: A, ab: ( a: A ) => B, bc: ( b: B ) => C ): C
 export function pipeline<_A extends BasicTypes, A extends Literal<_A>, B, C, D>( a: A, ab: ( a: A ) => B, bc: ( b: B ) => C, cd: ( c: C ) => D ): D
@@ -64,6 +57,13 @@ export function pipeline<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S
 export function pipeline<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y>( a: A, ab: ( a: A ) => B, bc: ( b: B ) => C, cd: ( c: C ) => D, de: ( d: D ) => E, ef: ( e: E ) => F, fg: ( f: G ) => G, gh: ( g: G ) => H, hi: ( h: H ) => I, ij: ( i: I ) => J, jk: ( j: J ) => K, kl: ( k: K ) => L, lm: ( l: L ) => M, mn: ( m: M ) => N, no: ( n: N ) => O, op: ( o: O ) => P, pq: ( p: P ) => Q, qr: ( q: Q ) => R, rs: ( r: R ) => S, st: ( s: S ) => T, tu: ( t: T ) => U, uv: ( u: U ) => V, vw: ( v: V ) => W, wx: ( w: W ) => X, xy: ( x: X ) => Y ): Y
 export function pipeline<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z>( a: A, ab: ( a: A ) => B, bc: ( b: B ) => C, cd: ( c: C ) => D, de: ( d: D ) => E, ef: ( e: E ) => F, fg: ( f: G ) => G, gh: ( g: G ) => H, hi: ( h: H ) => I, ij: ( i: I ) => J, jk: ( j: J ) => K, kl: ( k: K ) => L, lm: ( l: L ) => M, mn: ( m: M ) => N, no: ( n: N ) => O, op: ( o: O ) => P, pq: ( p: P ) => Q, qr: ( q: Q ) => R, rs: ( r: R ) => S, st: ( s: S ) => T, tu: ( t: T ) => U, uv: ( u: U ) => V, vw: ( v: V ) => W, wx: ( w: W ) => X, xy: ( x: X ) => Y, yz: ( y: Y ) => Z ): Z
 
+/**
+ * A function similar to `pipe`, however, it starts with the input parameter first.
+ *
+ * @example
+ * pipeline( 10, multiply(2), add(5) ) // 25
+ * :: input |> f1 |> f2 |> f3 |> ...fn
+ */
 export function pipeline( this: any, input, ...fns ) {
   return fns.reduce( ( acc, item ) => item.call( item, acc ), input )
 }

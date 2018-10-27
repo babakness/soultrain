@@ -2,6 +2,7 @@
 
 import { Last, Reverse } from '../helper-types'
 
+export function last <A extends any[]>( arr: A ): Last<A>
 /**
  * Return last item in array
  * @param arr array to return last item of
@@ -9,7 +10,6 @@ import { Last, Reverse } from '../helper-types'
  * @example
  * last( [ 1, 2, 3 ] ) // 3
  */
-export function last <A extends any[]>( arr: A ): Last<A>
 export function last( arr ) {
   return arr[ arr.length - 1 ]
 }

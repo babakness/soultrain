@@ -3,16 +3,6 @@
 import { toArray } from '../array/toArray'
 import { ExtractFunctionArguments, ExtractFunctionReturnValue } from '../helper-types'
 
-/**
- * Functional pipe, chain applies functions starting from the left and moves right
- *
- * @example
- * const myFormula = pipe( multiply(2), add(5) )
- * myFormula(10) // 25
- *
- * :: f1 |> f2 |> f3 |> ... fn
- */
-
 export function pipe<Fn>( entry: Fn ): ( ...args: ExtractFunctionArguments<Fn> ) => ExtractFunctionReturnValue<Fn>
 export function pipe<Fn, A>( entry: Fn, first: ( a: ExtractFunctionReturnValue<Fn> ) => A ): ( ...args: ExtractFunctionArguments<Fn> ) => A
 export function pipe<Fn, A, B>( entry: Fn, first: ( a: ExtractFunctionReturnValue<Fn> ) => A , ab: ( a: A ) => B ): ( ...args: ExtractFunctionArguments<Fn> ) => B
@@ -40,6 +30,15 @@ export function pipe<Fn, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S
 export function pipe<Fn, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X>( entry: Fn, first: ( a: ExtractFunctionReturnValue<Fn> ) => A , ab: ( a: A ) => B, bc: ( b: B ) => C, cd: ( c: C ) => D, de: ( d: D ) => E, ef: ( e: E ) => F, fg: ( f: F ) => G, gh: ( g: G ) => H, hi: ( h: H ) => I, ij: ( i: I ) => J, jk: ( j: J ) => K, kl: ( k: K ) => L, lm: ( l: L ) => M, mn: ( m: M ) => N, no: ( n: N ) => O, op: ( o: O ) => P, pq: ( p: P ) => Q, qr: ( q: Q ) => R, rs: ( r: R ) => S, st: ( s: S ) => T, tu: ( t: T ) => U, uv: ( u: U ) => V, vw: ( v: V ) => W, wx: ( w: W ) => X ): ( ...args: ExtractFunctionArguments<Fn> ) => X
 export function pipe<Fn, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y>( entry: Fn, first: ( a: ExtractFunctionReturnValue<Fn> ) => A , ab: ( a: A ) => B, bc: ( b: B ) => C, cd: ( c: C ) => D, de: ( d: D ) => E, ef: ( e: E ) => F, fg: ( f: F ) => G, gh: ( g: G ) => H, hi: ( h: H ) => I, ij: ( i: I ) => J, jk: ( j: J ) => K, kl: ( k: K ) => L, lm: ( l: L ) => M, mn: ( m: M ) => N, no: ( n: N ) => O, op: ( o: O ) => P, pq: ( p: P ) => Q, qr: ( q: Q ) => R, rs: ( r: R ) => S, st: ( s: S ) => T, tu: ( t: T ) => U, uv: ( u: U ) => V, vw: ( v: V ) => W, wx: ( w: W ) => X, xy: ( x: X ) => Y ): ( ...args: ExtractFunctionArguments<Fn> ) => Y
 export function pipe<Fn, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z>( entry: Fn, first: ( a: ExtractFunctionReturnValue<Fn> ) => A , ab: ( a: A ) => B, bc: ( b: B ) => C, cd: ( c: C ) => D, de: ( d: D ) => E, ef: ( e: E ) => F, fg: ( f: F ) => G, gh: ( g: G ) => H, hi: ( h: H ) => I, ij: ( i: I ) => J, jk: ( j: J ) => K, kl: ( k: K ) => L, lm: ( l: L ) => M, mn: ( m: M ) => N, no: ( n: N ) => O, op: ( o: O ) => P, pq: ( p: P ) => Q, qr: ( q: Q ) => R, rs: ( r: R ) => S, st: ( s: S ) => T, tu: ( t: T ) => U, uv: ( u: U ) => V, vw: ( v: V ) => W, wx: ( w: W ) => X, xy: ( x: X ) => Y, yz: ( y: Y ) => Z ): ( ...args: ExtractFunctionArguments<Fn> ) => Z
+/**
+ * Functional pipe, chain applies functions starting from the left and moves right
+ *
+ * @example
+ * const myFormula = pipe( multiply(2), add(5) )
+ * myFormula(10) // 25
+ *
+ * :: f1 |> f2 |> f3 |> ... fn
+ */
 export function pipe( entry, ...funcs ) {
   return ( ...arg ) => funcs.reduce( ( acc, item ) => item.call( item, acc ), entry( ...arg ) )
 }

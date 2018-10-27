@@ -24,8 +24,15 @@ export const regexEscape = ( s: string ) => s.replace( /[\^$*+?.()|[\]{}]/g, '\$
  * :: str -> str
  */
 export const trim = ( s: string ) => s.trim()
-
+/**
+ * Todo
+ */
 export const split = curry( ( regex: RegExp | string , s: string ) => s.split( regex ) )
-
+/**
+ * Todo
+ */
 export const toUpperCase = ( str: string ) => str.toUpperCase()
+/**
+ * Todo
+ */
 export const toLowerCase = ( str: string ) => str.toLowerCase()

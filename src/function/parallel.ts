@@ -2,10 +2,6 @@
 
 import { Function1 } from '../helper-types'
 
-/**
- * Takes array of functions, array of arguments, and returns array of functions with arguments applied.
- * :: (...f) -> (...a) -> [ f1(...a),f2(...a),...]
- */
 export function parallel<Input, A>( ...funcs: [Function1<Input, A>] ): ( arg: Input ) => [A]
 export function parallel<Input, A, B>( ...funcs: [Function1<Input, A>, Function1<Input, B>] ): ( arg: Input ) => [A, B]
 export function parallel<Input, A, B, C>( ...funcs: [Function1<Input, A>, Function1<Input, B>, Function1<Input, C>] ): ( arg: Input ) => [A, B, C]
@@ -32,6 +28,10 @@ export function parallel<Input, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, 
 export function parallel<Input, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X>( ...funcs: [Function1<Input, A>, Function1<Input, B>, Function1<Input, C>, Function1<Input, D>, Function1<Input, E>, Function1<Input, F>, Function1<Input, G>, Function1<Input, H>, Function1<Input, I>, Function1<Input, J>, Function1<Input, K>, Function1<Input, L>, Function1<Input, M>, Function1<Input, N>, Function1<Input, O>, Function1<Input, P>, Function1<Input, Q>, Function1<Input, R>, Function1<Input, S>, Function1<Input, T>, Function1<Input, U>, Function1<Input, V>, Function1<Input, W>, Function1<Input, X>] ): ( arg: Input ) => [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]
 export function parallel<Input, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y>( ...funcs: [Function1<Input, A>, Function1<Input, B>, Function1<Input, C>, Function1<Input, D>, Function1<Input, E>, Function1<Input, F>, Function1<Input, G>, Function1<Input, H>, Function1<Input, I>, Function1<Input, J>, Function1<Input, K>, Function1<Input, L>, Function1<Input, M>, Function1<Input, N>, Function1<Input, O>, Function1<Input, P>, Function1<Input, Q>, Function1<Input, R>, Function1<Input, S>, Function1<Input, T>, Function1<Input, U>, Function1<Input, V>, Function1<Input, W>, Function1<Input, X>, Function1<Input, Y>] ): ( arg: Input ) => [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]
 export function parallel<Input, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z>( ...funcs: [Function1<Input, A>, Function1<Input, B>, Function1<Input, C>, Function1<Input, D>, Function1<Input, E>, Function1<Input, F>, Function1<Input, G>, Function1<Input, H>, Function1<Input, I>, Function1<Input, J>, Function1<Input, K>, Function1<Input, L>, Function1<Input, M>, Function1<Input, N>, Function1<Input, O>, Function1<Input, P>, Function1<Input, Q>, Function1<Input, R>, Function1<Input, S>, Function1<Input, T>, Function1<Input, U>, Function1<Input, V>, Function1<Input, W>, Function1<Input, X>, Function1<Input, Y>, Function1<Input, Z>] ): ( arg: Input ) => [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]
+/**
+ * Takes array of functions, array of arguments, and returns array of functions with arguments applied.
+ * :: (...f) -> (...a) -> [ f1(...a),f2(...a),...]
+ */
 export function parallel( ...funcs ) {
   return ( ...args ) => funcs.map( ( func ) => func.apply( func, args ) )
 }

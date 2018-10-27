@@ -2,6 +2,10 @@
 
 import { untypedCurry } from '../function/untypedCurry'
 import { Transduce } from '../transduce'
+
+export function every<A>( n: number, offset: number, arr: A[] ): A[]
+export function every( n: number, offset: number ): <A>( arr: A[] ) => A[]
+export function every( n: number ): ( offset: number ) => <A>( arr: A[] ) => A[]
 /**
  * Return every n-th item in an array skipping the first number of items given
  * by an offset
@@ -11,9 +15,6 @@ import { Transduce } from '../transduce'
  * @example
  * every(2,1,[1,2,3,4]) // [2,4]
  */
-export function every<A>( n: number, offset: number, arr: A[] ): A[]
-export function every( n: number, offset: number ): <A>( arr: A[] ) => A[]
-export function every( n: number ): ( offset: number ) => <A>( arr: A[] ) => A[]
 export function every( ...args ) {
   return untypedCurry( ( n, offset, arr ) => Transduce.of( arr )
     .every( n, offset )
