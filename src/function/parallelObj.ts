@@ -2,7 +2,7 @@
 
 import head from '../array/head'
 import last from '../array/last'
-import { AnyFunction, BasicTypes, Contains, ContainsType, Equals, ExtractFunctionArguments, ExtractFunctionReturnValue, Function1, FunctionProperties, IsAny, IsArray, Prepend, Reverse, ValueOf } from '../helper-types'
+import { AnyFunction, BasicTypes, Concat, Contains, ContainsType, DeepFlatten, Equals, ExtractFunctionArguments, ExtractFunctionReturnValue, FlattenArray, FlattenOnce, Function1, FunctionProperties, IsAny, IsArray, Prepend, Reverse, ValueOf, WidenArray } from '../helper-types'
 import { label, log } from '../logging'
 import { assoc } from '../object'
 import type from '../type/type'
@@ -90,7 +90,7 @@ type SubtractList<A extends any[], B extends any[]> = {
   // @ts-ignore
   'reduce': ( ( ..._: A ) => any ) extends ( ( _: infer A1, ..._1: infer AR ) => any )
     ? ( ( ..._: B ) => any ) extends ( ( _: infer B1, ..._1: infer BR ) => any )
-      ? A1 extends B1
+      ?  B1 extends A1
         ? SubtractList<AR, BR>
         : A1
       : 'ERROR B'
@@ -107,32 +107,41 @@ type SubtractList<A extends any[], B extends any[]> = {
 
 type asdf4  = SubtractList<[1, 2, 3], [1, 2]>
 
-type Partial<F, Args extends any[]> = F extends ( ( ...args: infer FA ) => infer Return )
-    ? FA extends []
-      ? Args extends []
-        ? F
-        : Return
-      : SubtractList<FA, Args> extends []
-        ? ExtractFunctionReturnValue<F> // maybe error?
-        : ( ...args: SubtractList<FA, Args> ) => ExtractFunctionReturnValue<F>
-    : 'P ERROR'
+type Partial<F, Args> = Args extends any[]
+  ?
+    F extends ( ( ...args: infer FA ) => infer Return )
+      ? FA extends []
+        ? Args extends []
+          ? F
+          : Return
+        : SubtractList<FA, Args> extends []
+          ? ExtractFunctionReturnValue<F> // maybe error?
+          : ( ...args: SubtractList<FA, Args> ) => ExtractFunctionReturnValue<F>
+      : 'P ERROR'
+  : 'no'
 
 type pof = Partial< ( a: number, b: string ) => string[], [number]>
 
 type NotRequired<T> = {[K in keyof T]?: T[K] }
 
-type Curry<F, A extends any[]> = {
-  'a': Partial<F, A> extends ( ( _: infer First, ..._1: infer Rest ) => infer Return )
-    // @ts-ignore
-    ? <B extends NotRequired<[First, ...Rest]>>( ...args: B ) => Curry<  Partial<F, A>, B >
-    : 'never'
+type Curry<F, A> = {
+  'a':
+    A extends any[]
+      ? Partial<F, A> extends ( ( _: infer First, ..._1: infer Rest ) => infer Return )
+        ? <B extends NotRequired<Rest>>( a: First, ...args: B ) => Curry<F, Concat< A, Prepend<B, First>>>
+        : 'never'
+      : never
   'b': Partial < F, A >,
+  'c': Partial < F, A >,
 }[
-  Partial < F, A > extends AnyFunction
-  ? 'a'
-  : 'b'
+  A extends any[]
+    ? Partial < F, A > extends AnyFunction
+      ? 'a'
+      : 'c'
+    : never
 ]
 
-declare function partial<F, Args extends any[]>( f: F, ...args: Args ): Curry<F, Args>
+declare function partial<F, Args extends any[]>( f: F, ...args: Args ): Partial<F, Args>
+declare function curry<F, Args extends any[]>( f: F, ...args: Args ): Curry<F, Args>
 
-const foo = partial( ( a: number, b: number, c: number, d: string ) => 'asdf' , 4 )( 2, 3, 0 )
+const foo = curry( ( a: number, b: number, c: number, d: string ) => 'asdf' , 4 )( 2 )( 2, 'f' )// ( 1 )( 4 )( 'f ' )
