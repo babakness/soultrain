@@ -10,7 +10,8 @@ export function toTuple<A, B>( a: A ): ( b: B ) => [A, B]
  * @param a
  * @param b
  * @example
- *
+ * toTuple(1,2)
+ * //=> [1,2]
  */
 export function toTuple( ...args ) {
   return untypedCurry( ( a, b ) => [ a, b ] )

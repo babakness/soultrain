@@ -16,7 +16,8 @@ export function insert( index: number ): PushIndexPossibleCurried
  * @param arr array to insert value at index into
  * @param value value to insert into array
  * @example
- *
+ * insert( 2 , [1,2,3,4] )
+ * //=> [1,2,2,3,4]
  */
 export function insert( ...args ) {
   return untypedCurry( ( index, arr, value ) => [ ...arr.slice( 0, index ), value, ...arr.slice( index, arr.length ) ] )( ...args )
