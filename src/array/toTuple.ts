@@ -14,5 +14,5 @@ export function toTuple<A, B>( a: A ): ( b: B ) => [A, B]
  * //=> [1,2]
  */
 export function toTuple( ...args ) {
-  return untypedCurry( ( a, b ) => [ a, b ] )
+  return untypedCurry( ( a, b ) => [ a, b ] )( ...args )
 }

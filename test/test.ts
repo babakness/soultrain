@@ -65,6 +65,7 @@ import {
   test as strTest,
   toArray,
   toArrayReverse,
+  toTuple,
   trace,
   Transduce,
   trim,
@@ -73,6 +74,10 @@ import {
 } from '../src/index'
 
 test( 'tests library works', ( t ) => t.pass() )
+
+test( 'toTuple', ( t ) => {
+  trace( toTuple( 1, 2 ) )
+} )
 
 test( 'parallelObj', ( t ) => {
   interface ResultType {

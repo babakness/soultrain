@@ -4,7 +4,7 @@ import head from '../array/head'
 import last from '../array/last'
 import { AnyFunction, BasicTypes, Concat, Contains, ContainsType, DeepFlatten, Equals, ExtractFunctionArguments, ExtractFunctionReturnValue, FlattenArray, FlattenOnce, Function1, FunctionProperties, IsAny, IsArray, Prepend, Reverse, ValueOf, WidenArray } from '../helper-types'
 import { label, log } from '../logging'
-import { assoc } from '../object'
+import { assoc, prop } from '../object'
 import type from '../type/type'
 import untypedCurry from './untypedCurry'
 
@@ -39,10 +39,10 @@ const _parallelObjO =  ( obj, input ) => Object.entries( obj ).reduce( ( acc, [ 
 
 // : shouldCopy( type( val ) )
 
-export function parallelObj<Input, B, O extends [any, ...any[]] | {} >( obj: O , input: Input ): O extends [any, ...any[]]
+export function parallelObj<Input, O extends [any, ...any[]] | {} >( obj: O , input: Input ): O extends [any, ...any[]]
   ? ParallelObjRecursive<O, Input>
   : ParallelObjRecursive<O, Input>
-export function parallelObj<B, O extends object>( obj: O ): <Input>( input: Input ) => ParallelObjRecursive<O, Input>
+export function parallelObj<O extends object>( obj: O ): <Input>( input: Input ) => ParallelObjRecursive<O, Input>
 export function parallelObj( ...args ) {
   return untypedCurry( ( obj, input ) => type( obj ) === 'Object'
     ? _parallelObjO( obj, input )
@@ -80,21 +80,22 @@ declare function pipe <Fns extends [AnyFunction, ...AnyFunction[]] >( ...fns: Fn
 declare function compose <Fns extends [AnyFunction, ...AnyFunction[]] >( ...fns: Fns ): Compose<Fns>
 // const fffff =  ( a: number, b: number ) => a + 1
 // const asf = pipe( ( a: number, b: number ): number => a + 1 , ( x ) => x, ( x ) => x, ( x ): string => x , ( b: number ) => 'sf', ( b: string ) => 'sf' )
-const asfa = pipe(
-  ( a: number, b: number ): number => a + 1 ,
-  ( x: number ): string => `${x}`,
-  ( x: string ): string => String( x ),
-  ( x: string ): string => x , ( b: string ) => 'sf', ( b: string ) => 'sf' )
+// const asfa = pipe(
+//   ( a: number, b: number ): number => a + 1 ,
+//   ( x: number ): string => `${x}`,
+//   ( x: string ): string => String( x ),
+//   ( x: string ): string => x , ( b: string ) => 'sf', ( b: string ) => 'sf' )
 
 type SubtractList<A extends any[], B extends any[]> = {
   // @ts-ignore
-  'reduce': ( ( ..._: A ) => any ) extends ( ( _: infer A1, ..._1: infer AR ) => any )
-    ? ( ( ..._: B ) => any ) extends ( ( _: infer B1, ..._1: infer BR ) => any )
-      ?  B1 extends A1
-        ? SubtractList<AR, BR>
-        : A1
-      : 'ERROR B'
-    : 'ERROR C',
+  'reduce':
+    ( ( ..._: A ) => any ) extends ( ( _: infer A1, ..._1: infer AR ) => any )
+      ? ( ( ..._: B ) => any ) extends ( ( _: infer B1, ..._1: infer BR ) => any )
+        ?  B1 extends A1
+          ? SubtractList<AR, BR>
+          : A1
+        : 'ERROR B'
+      : 'ERROR C',
   'done': A,
   'end': [],
 }[
@@ -144,4 +145,4 @@ type Curry<F, A> = {
 declare function partial<F, Args extends any[]>( f: F, ...args: Args ): Partial<F, Args>
 declare function curry<F, Args extends any[]>( f: F, ...args: Args ): Curry<F, Args>
 
-const foo = curry( ( a: number, b: number, c: number, d: string ) => 'asdf' , 4 )( 2 )( 2, 'f' )// ( 1 )( 4 )( 'f ' )
+// const foo = curry( ( a: number, b: number, c: number, d: string ) => 'asdf' , 4 )( 2 )( 2, 'f' )// ( 1 )( 4 )( 'f ' )
