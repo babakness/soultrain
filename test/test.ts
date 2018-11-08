@@ -59,6 +59,7 @@ import {
   safeTail,
   split,
   splitAt,
+  spread,
   sumArray,
   sumColumn,
   tail,
@@ -75,8 +76,20 @@ import {
 
 test( 'tests library works', ( t ) => t.pass() )
 
+test( ' spread', ( t ) => {
+  const joinArgs = ( a: string ) => ( ...args: string[] ) => args.join( a )
+  t.deepEqual(
+    pipeline(
+      'a-b-c',
+      split( '-' ),
+      spread( joinArgs( '/' ) ),
+    ),
+    'a/b/c',
+  )
+} )
+
 test( 'toTuple', ( t ) => {
-  trace( toTuple( 1, 2 ) )
+  t.deepEqual( toTuple( 1, 2 ), [ 1, 2 ] )
 } )
 
 test( 'parallelObj', ( t ) => {

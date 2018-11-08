@@ -1,5 +1,6 @@
 // AUTOMATED FILE. DO NOT EDIT.
 export * from './untypedCurry'
+export * from './spread'
 export * from './pipeline'
 export * from './pipe'
 export * from './parallelObj'
