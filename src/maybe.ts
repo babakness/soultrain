@@ -83,6 +83,14 @@ export class Nothing<A> {
     return true
   }
 
+  /**
+   * A shortcut for Maybe1.ap( Maybe2.map( toTuple ) )
+   * with better type intelligence
+   */
+  apTuple<B>( fb: Maybe<B> ): Maybe<[B, A]> {
+    return nothing
+  }
+
   ap<B>( fab: Maybe<( a: A ) => B> ): Maybe<B> {
     return nothing
   }
@@ -160,6 +168,14 @@ export class Just<A> {
 
   chain<B>( fn: ( a: A ) => Maybe<B> ): Maybe<B> {
     return fn( this.value )
+  }
+
+  /**
+   * A shortcut for Maybe1.ap( Maybe2.map( toTuple ) )
+   * with better type intelligence
+   */
+  apTuple<B>( fb: Maybe<B> ): Maybe<[B, A]> {
+    return fb.isJust() ? Just.of( [ fb.value, this.value ] ) as Just<[B, A]> : nothing
   }
 
   ap<B>( fab: Maybe<( a: A ) => B> ): Maybe<B> {

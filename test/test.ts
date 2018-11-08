@@ -76,6 +76,18 @@ import {
 
 test( 'tests library works', ( t ) => t.pass() )
 
+test( 'maybe apTuple', ( t ) => {
+  const maybeTen = Maybe.of( 10 )
+  const maybeTwenty = Maybe.of( 20 )
+  t.deepEqual(
+    maybeTen.apTuple( maybeTwenty )
+      .map( ( i ) => i )
+      .joinOrValue( [ 0, 0 ] ),
+    [ 20, 10 ],
+  )
+
+} )
+
 test( ' spread', ( t ) => {
   const joinArgs = ( a: string ) => ( ...args: string[] ) => args.join( a )
   t.deepEqual(
