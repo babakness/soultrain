@@ -1,10 +1,7 @@
 /** @module function/parallelObj.ts */
 
-import head from '../array/head'
-import last from '../array/last'
 import { AnyFunction } from '../helper-types'
-import { label, log } from '../logging'
-import { assoc, prop } from '../object'
+import { assoc } from '../object'
 import type from '../type/type'
 import untypedCurry from './untypedCurry'
 
@@ -12,11 +9,6 @@ type ParallelObjRecursive<O, Input> = {
   [K in keyof O] : O[K] extends ( ( a: Input ) => infer B )
     ? B
     : ParallelObjRecursive<O[K], Input>
-    // : O[K] extends object
-    //   ? ParallelObjRecursive<O[K], Input>
-    //   : O[K] extends [any, ...any[]]
-    //     ? O[K]
-    //     : O[K]
 }
 
 const _parallelObjA = ( arr, input ) => arr.map( ( val ) => type( val ) !== 'Function'
