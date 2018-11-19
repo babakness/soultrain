@@ -263,6 +263,28 @@ export type Head<A extends any[]> = ( ( ..._: A ) => any ) extends ( ( _: infer 
   ? First
   : ValueAt<A, 0>
 
+type RemoveItem<A extends any[], R, N extends any[]= []> = {
+  'skip': ( ( ..._: A ) => any ) extends ( ( _: infer First, ..._1: infer Next ) => any )
+      ? Concat<Next, N>
+      : never,
+  'add': ( ( ..._: A ) => any ) extends ( ( _: infer First, ..._1: infer Next ) => any )
+      ? RemoveItem<Next, R, Prepend<N, First>>
+      : never,
+}[
+    A extends []
+        ? N
+        : ( ( ..._: A ) => any ) extends ( ( _: infer First, ..._1: infer Next ) => any )
+          ? First extends R
+            ? 'skip'
+            : 'add'
+          : never
+  ]
+
+// type RemoveProp<T, K extends keyof T = keyof T> = { [P in keyof T]: string}
+// type Z = RemoveProp<{a: 1, b: 2}>
+// type vv = asf
+// type sf = Prepend<[1, 2], 3>
+
 // export type FlattenOnce<A extends any> = A extends Array<infer U>
 //   ? U
 //   : never

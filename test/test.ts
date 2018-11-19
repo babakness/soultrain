@@ -611,6 +611,14 @@ test( 'sequence maybe', ( t ) => {
     ),
     Just.of( 1 ),
   )
+
+  // trace(
+  //   Maybe.of( [ 1, 2, undefined, 5 ] )
+  //     .map( ( i ) => i )
+  //     .sequenceNullable( Array )
+  //     .reduce( ( acc, item ) => item.chain( ( i ) => acc )  , Maybe.of( [] ) ),
+  // )
+
 } )
 
 test( 'traverse transduce', ( t ) => {
