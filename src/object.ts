@@ -110,14 +110,6 @@ interface KeyValuePair<K, V> extends Array<K | V> {
 
 // export const fromEntries = fromPairs
 
-/**
- * Takes an array of paths to lookup and a look up object, returns value at path or null.
- *
- * @example
- * path( 'a', 'b', 'c' )( {a: { b: {c : 1 } } } ) // 1
- *
- * :: ( k1, k2, ... k3 ) -> o -> o[ k1 ][ k2 ][ k3 ]
- */
 export const _pathValue = untypedCurry( ( path: string[], obj: {} ) => path.reduce( ( acc, item ) => acc.hasOwnProperty( item ) ? acc[ item ] : undefined, obj ) )
 
 // getPathValue(['a'],{a:1})
@@ -148,9 +140,20 @@ export function getPathValue<L, K1 extends keyof L, K2 extends keyof L[K1], K3 e
 /**
  * Todo
  */
+
+/**
+ * Takes an array of paths to lookup and a look up object, returns value at path or null.
+ *
+ * @example
+ * path( ['a', 'b', 'c' ])( {a: { b: {c : 1 } } } ) // 1
+ *
+ * :: ( k1, k2, ... k3 ) -> o -> o[ k1 ][ k2 ][ k3 ]
+ */
 export function getPathValue( ...args ) {
   return _pathValue( ...args )
 }
+
+export const path = getPathValue
 
 /**
  * Retrieves the value of an obj item at given index or key

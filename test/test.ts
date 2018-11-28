@@ -16,12 +16,14 @@ import {
   entries,
   every,
   evolve,
+  evolveReducer,
   filter,
   flippedProp,
   flipRectangularMatrix,
   flipRectangularMatrixFromWidth,
   flipSquareMatrix,
   fromPairs,
+  fromSpread,
   groupBy,
   head,
   identity,
@@ -75,6 +77,23 @@ import {
 } from '../src/index'
 
 test( 'tests library works', ( t ) => t.pass() )
+
+// test( '', ( t ) => {
+//   const foo = evolveReducer( {
+//     x: {
+//       y: ( x: number, y: number ) => 400,
+//     },
+//   },  { w: 100,  x: { y: 10 } }, { w: 20 } )
+//   trace( foo )
+// } )
+
+test( 'fromSpread', ( t ) => {
+  const classes = fromSpread( joinArray( ' ' ) )
+  t.deepEqual(
+    classes( 'a', 'b', 'c' ),
+    'a b c',
+  )
+} )
 
 test( 'maybe apTuple', ( t ) => {
   const maybeTen = Maybe.of( 10 )

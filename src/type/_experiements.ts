@@ -1,3 +1,5 @@
+/** @module type/_experiements.ts */
+
 import {
   AnyFunction,
   Concat,
