@@ -15,3 +15,5 @@
  * //=> 'a/b/c'
  */
 export const spread = <F extends ( ...args: any[] ) => any>( fn: F ) => <A extends any[]>( arr: A ): ( F extends  ( ...args: any[] ) => infer U ? U : never ) => fn( ...arr )
+
+export default spread

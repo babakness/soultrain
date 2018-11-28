@@ -10,3 +10,5 @@
  * //=> 'a/b/c'
  */
 export const fromSpread = <F extends ( ...args: any[] ) => any>( fn: F ) => <A extends any[]>( ...args: A ): ( F extends  ( arr: any[] ) => infer U ? U : never ) => fn( args )
+
+export default fromSpread
