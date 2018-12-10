@@ -109,7 +109,7 @@ interface KeyValuePair<K, V> extends Array<K | V> {
 }
 
 // export const fromEntries = fromPairs
-
+  // tslint:disable-next-line:no-shadowed-variable only-arrow-functions
 export const _pathValue = untypedCurry( ( path: string[], obj: {} ) => path.reduce( ( acc, item ) => acc.hasOwnProperty( item ) ? acc[ item ] : undefined, obj ) )
 
 // getPathValue(['a'],{a:1})
@@ -171,4 +171,7 @@ export const keys = <V>( obj: { [k: string]: V } ): string[] => Object.keys( obj
 /**
  * Todo
  */
-export const values = <V>( obj: { [k: string]: V } ): V[] => Object.values ? Object.values( obj ) : Object.keys( obj ).map( ( key ) => obj[ key ] )
+// export const values = <V extends unknown>( obj: { [k: string]: V } ): V[] => Object.values ? Object.values( obj ) : Object.keys( obj ).map( ( key ) => obj[ key ] )
+export const values = <O>( obj: O ): Array<O[ keyof O ]> => Object.values
+  ? Object.values( obj ) as Array<O[ keyof O ]>
+  : Object.keys( obj ).map( ( key ) => obj[ key ] ) as Array<O[ keyof O ]>
