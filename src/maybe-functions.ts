@@ -1,5 +1,6 @@
 /** @module maybe-functions.ts */
 
+import { contains } from './array/contains'
 import { head } from './array/head'
 import { init } from './array/init'
 import { last } from './array/last'
@@ -8,7 +9,7 @@ import { isNullable, isNullyOrNaN } from './check'
 import { untypedCurry } from './function/untypedCurry'
 import { WidenType } from './helper-types'
 import { Just, Maybe, nothing } from './maybe'
-import { prop } from './object'
+import { prop, values } from './object'
 
 export const safeInit = <A>( as: A[] ): Maybe<A[]> => {
   return isNullable( as ) ? nothing : Maybe.from( init( as ) )
@@ -57,3 +58,21 @@ export function safeIndexValue<I extends number>( index: I ): <A extends any[]>(
 export function safeIndexValue( ...args ) {
   return _safeIndex( ...args )
 }
+
+type StripAllNullValue< A extends object> = {
+  [I in keyof A]: A[I] extends infer U
+    ? U extends undefined | null
+      ? never
+      : U
+    : never
+}
+
+export const maybeAllValues = <O extends [any, ...any[]] | object >( o: O ): Maybe<StripAllNullValue<O>> => Maybe.of( o )
+  .map( values )
+  .map( contains )
+  .chain( ( _contains: ( ( a: any ) => boolean ) ) => ( _contains( null ) || _contains( undefined ) )
+    ? nothing
+    : Maybe.of( o ),
+  ) as Maybe < StripAllNullValue < O >>
+
+// declare function test<A extends [any, ...any[]]>( a: A ): AllNotNull<A>
