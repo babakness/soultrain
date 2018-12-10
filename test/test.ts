@@ -5,6 +5,7 @@ import {
   always,
   and,
   AnyFunction,
+  append,
   arrayItemsAllEqual,
   arrayItemsMeetPredicate,
   assign,
