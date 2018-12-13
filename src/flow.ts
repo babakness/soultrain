@@ -3,7 +3,8 @@
 import { complement } from './function/complement'
 import { curry } from './function/curry'
 import { untypedCurry } from './function/untypedCurry'
-import { Function1, FunctionV, Predicate } from './helper-types'
+import { Function1, Function2, FunctionV, Predicate } from './helper-types'
+import { trace } from './logging'
 import { Maybe } from './maybe'
 
 export function when<A, B>( pred: Function1<A, boolean>, whenTrueFn: Function1<A, B>, input: A ): A | B
@@ -17,17 +18,65 @@ export function when( ...args ) {
   return untypedCurry( ( pred, whenTrueFn, x ) => pred( x ) === true ? whenTrueFn( x ) : x )( ...args )
 }
 
-export function times <A, B>( callback: Function1<number, A>, repeat: number ): A[]
-export function times <A, B>( callback: Function1<number, A> ): ( repeat: number ) => A[]
+export function times <A>( callback: Function1<number, A>, repeat: number ): A[]
+export function times <A>( callback: Function1<number, A> ): ( repeat: number ) => A[]
 /**
  * Takes a callback and a repeat number n, iterates over that function n times.
- * :: ( fn -> a ) -> n -> a[]
+ * :: ( fn -> n -> a ) -> n -> a[]
  */
 export function times( ...args ) {
   return untypedCurry( ( callback, numberOfTimes ) => {
     const returnValues: any[] = []
     for ( let index = 0; index < numberOfTimes; index++ ) {
       returnValues.push( callback( index ) )
+    }
+    return returnValues
+  } )( ...args )
+}
+
+export function times_<A>( repeat: number, callback: Function1<number, A> ): A[]
+export function times_( repeat: number ): <A>( callback: Function1<number, A> ) => A[ ]
+/**
+ * Takes a callback and a repeat number n, iterates over that function n times.
+ * :: ( fn -> n -> a ) -> n -> a[]
+ */
+export function times_( ...args ) {
+  return untypedCurry( ( numberOfTimes, callback ) => {
+    const returnValues: any[] = []
+    for ( let index = 0; index < numberOfTimes; index++ ) {
+      returnValues.push( callback( index ) )
+    }
+    return returnValues
+  } )( ...args )
+}
+
+export function timesWithRepeat <A>( callback: Function2<number, number, A>, repeat: number ): A[]
+export function timesWithRepeat<A>( callback: Function2<number, number, A> ): ( repeat: number ) => A[]
+/**
+ * Takes a callback and a repeat number n, iterates over that function n times.
+ * :: ( fn -> n -> nt -> a ) -> nt -> a[]
+ */
+export function timesWithRepeat( ...args ) {
+  return untypedCurry( ( callback, numberOfTimes ) => {
+    const returnValues: any[] = []
+    for ( let index = 0; index < numberOfTimes; index++ ) {
+      returnValues.push( callback( index, numberOfTimes ) )
+    }
+    return returnValues
+  } )( ...args )
+}
+
+export function timesWithRepeat_<A>( repeat: number, callback: Function2<number, number, A> ): A[]
+export function timesWithRepeat_( repeat: number ): <A>( callback: Function2<number, number, A> ) => A[]
+/**
+ * Takes a callback and a repeat number n, iterates over that function n times.
+ * :: ( fn -> n -> nt -> a ) -> nt -> a[]
+ */
+export function timesWithRepeat_( ...args ) {
+  return untypedCurry( ( numberOfTimes, callback ) => {
+    const returnValues: any[] = []
+    for ( let index = 0; index < numberOfTimes; index++ ) {
+      returnValues.push( callback( index, numberOfTimes ) )
     }
     return returnValues
   } )( ...args )
