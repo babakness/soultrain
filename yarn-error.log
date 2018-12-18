@@ -29,7 +29,7 @@ Trace:
 npm manifest: 
   {
     "name": "soultrain",
-    "version": "0.0.17",
+    "version": "0.0.29",
     "description": "Soultrain is a compact functional library written in Typescript. It is inspired by Ramda and container-style programming based Algebraic Data Types.",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts",
@@ -37,7 +37,7 @@ npm manifest:
       "test": "ava-ts",
       "test-watch": "npm run test -- --watch --pretty",
       "build": "tsc",
-      "prepare": "./prepare",
+      "prepare": "./prepare && npm run build",
       "dev": "tsc --project tsconfig.json --watch --pretty",
       "build-es": "tsc --project tsconfig-es.json && prepend-jsdoc-module-name"
     },
