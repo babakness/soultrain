@@ -14,8 +14,14 @@
  * )
  * //=> 'a/b/c'
  */
-export const spread = <P, R >( fn: ( ...args: [P, ...P[]] ) => R ) => ( arr: [P, ...P[]] ) => fn( ...arr )
-
-const foo = spread( ( a: number, b: number ): number  => a + b )( [ 1 , 2 ] )
-
+export function spread <P, R>( fn: ( args: [P, ...P[]] ) => R ): ( arr: [P, ...P[]] ) => R
+export function spread <F extends ( ...args: any[] ) => any>( fn: F ): <A extends any[]>( arr: A ) => F extends ( ...args: any[] ) => infer U ? U : never
+// @ts-ignore
+export function spread( fn ) {
+  // @ts-ignore
+  // tslint:disable-next-line:only-arrow-functions
+  return function( arr ) {
+    return fn( ... arr )
+  }
+}
 export default spread
