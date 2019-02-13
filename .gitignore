@@ -4,4 +4,4 @@ node_modules
 ignore
 lib
 jsdoc-src
-.yarn.lock
+yarn.lock
