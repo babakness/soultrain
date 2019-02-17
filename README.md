@@ -1,3 +1,5 @@
+Please note that this library is still experimental and there will be breaking changes. If you are kicking the tires on this within another experimental project, it is best to lock it down to a specific version.
+
 # Install
 
 `npm install soultrain`
