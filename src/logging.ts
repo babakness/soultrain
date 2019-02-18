@@ -44,6 +44,7 @@ export const label =
   }
 
 const _last = ( arr ) => arr[ arr.length - 1 ]
+
 // export declare function log(a?: { value: any; id: typeof messageSymbol},b) : any
 // export function log<A,B>(a: A , b: B ) : B
 /**
