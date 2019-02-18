@@ -1,10 +1,10 @@
 /** @module function/pipeline.ts */
 
-import { head } from '../array/head'
-import { headTuple } from '../array/headTuple'
-import { last } from '../array/last'
+// import { head } from '../array/head'
+// import { headTuple } from '../array/headTuple'
+// import { last } from '../array/last'
 import { BasicTypes, Literal } from '../helper-types'
-import { safeHead, safeLast } from '../maybe-functions'
+// import { safeHead, safeLast } from '../maybe-functions'
 
 export function pipeline<_A extends BasicTypes, A extends Literal<_A>, B>( a: A, ab: ( a: A ) => B ): B
 export function pipeline<_A extends BasicTypes, A extends Literal<_A>, B, C>( a: A, ab: ( a: A ) => B, bc: ( b: B ) => C ): C
