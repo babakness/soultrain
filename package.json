@@ -1,6 +1,6 @@
 {
   "name": "soultrain",
-  "version": "0.0.39",
+  "version": "0.0.40",
   "description": "Soultrain is a compact functional library written in Typescript. It is inspired by Ramda and container-style programming based Algebraic Data Types.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
