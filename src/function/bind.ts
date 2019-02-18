@@ -3,6 +3,16 @@
 import defineFunctionProperties from './defineFunctionProperties'
 
 const bindSymbol = Symbol( 'bind' )
+/**
+ * Bind partially applies parameters to a function but does
+ * not execute it even if all required parameters are passed.
+ * One can repeatedly use bind, however, `curry` may be a better
+ * choice for that case.
+ * @example
+ * const addThree = (a: number, b: number, c: number ) => a + b + c
+ * const bound2 = bind( addThree, 1, 2 )
+ * const result = bound2( 3 ) // 6
+ */
 export function bind<A, Y extends Array<unknown>, Z>( fn: ( a: A, ...args: Y ) => Z, a: A ): ( ...args: Y ) => Z
 export function bind<A, B, Y extends Array<unknown>, Z>( fn: ( a: A, b: B, ...args: Y ) => Z, a: A, b: B ): ( ...args: Y ) => Z
 export function bind<A, B, C, Y extends Array<unknown>, Z>( fn: ( a: A, b: B, c: C, ...args: Y ) => Z, a: A, b: B, c: C ): ( ...args: Y ) => Z

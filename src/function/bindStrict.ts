@@ -3,6 +3,18 @@
 import defineFunctionProperties from './defineFunctionProperties'
 
 const bindSymbol = Symbol( 'bind' )
+/**
+ * bindStrict works like bind however it is typed so that a
+ * function bound to all of its parameters can only be invoked
+ * by passing an `undefined` value to it.
+ * @example
+ * const addThree = (a: number, b: number, c: number ) => a + b + c
+ * const bound2 = bindStrict( addThree, 1, 2 )
+ * const result = bound2( 3 ) // 6
+ * const bound3 = bindStrict( addThree, 1, 2, 3 )
+ * bound3() // works, 6
+ * bound3( 4 ) // will not typecheck
+ */
 export function bindStrict<A, Y extends Array<unknown>, Z>( fn: ( a: A, ...args: Y ) => Z, a: A ): ( ...args: Y extends ( Y['length'] extends 0 ? never : Y ) ? Y : void[] ) => Z
 export function bindStrict<A, B, Y extends Array<unknown>, Z>( fn: ( a: A, b: B, ...args: Y ) => Z, a: A, b: B ): ( ...args: Y extends ( Y['length'] extends 0 ? never : Y ) ? Y : void[] ) => Z
 export function bindStrict<A, B, C, Y extends Array<unknown>, Z>( fn: ( a: A, b: B, c: C, ...args: Y ) => Z, a: A, b: B, c: C ): ( ...args: Y extends ( Y['length'] extends 0 ? never : Y ) ? Y : void[] ) => Z
