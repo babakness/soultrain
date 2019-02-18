@@ -15,7 +15,21 @@ export const tap = S( K )
 /**
  * Todo
  */
-export const trace = <A>( a: A ): A => ( console.log( a ), a )
+
+// export const trace = <A>( a: A ): A => ( console.log( a ), a )
+
+export function trace<A>( p: A ): A
+export function trace<A>( ...p: [ unknown, A] ): A
+export function trace<A>( ...p: [ unknown, unknown, A] ): A
+export function trace<A>( ...p: [ unknown, unknown, unknown, A] ): A
+export function trace<A>( ...p: [ unknown, unknown, unknown, unknown, A] ): A
+export function trace( ...p: Array<unknown> ) {
+  console.log( ...p )
+  return p[ p.length as number ]
+}
+
+export const note = ( ...messages: Array<unknown> ) => ( console.log( ...messages ), trace )
+
 const messageSymbol = Symbol
 
 interface Message { value: any; id: typeof messageSymbol}
@@ -79,7 +93,6 @@ export const traceDebugger = ( ...args ) => args
 /**
  * Todo
  */
-export const note = ( ...messages ) => ( console.log( ...messages ), log )
 
 // export const map = fn => list => list.map( fn )
 /**
