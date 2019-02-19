@@ -11,7 +11,8 @@ interface IAppend<B> {
 export function append<B, A extends [any, ...any[]]>( item: B, arr: A ): Append<A, B>
 export function append<B, A extends any[] >( item: B, arr: A ): Array<ValueOf<A>|B>
 export function append<B extends Array<unknown>>( item: B ): IAppend<B>
-export function append<B extends string>( item: B ): string
+export function append( item: string, arr: string ): string
+export function append( item: string ): ( arr: string ) => string
 /**
  * Append a item onto the end of an array
  * @param item item to append onto array
