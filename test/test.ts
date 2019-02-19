@@ -37,6 +37,7 @@ import {
   last,
   Lens,
   map,
+  mapArray,
   Maybe,
   multiply,
   not,
@@ -560,7 +561,7 @@ test( 'String tests, map, filter test (accepting the right types, etc)', ( t ) =
       map( pipe( reverse, joinArray( '' ) ) ),
       map( parallelLoose( strTest( /^!/ ), identity ) ),
       filter( ( [ k, v ] ) => k ),
-      map( pipe( ( [ k, v ] ) => v ) ),
+      mapArray( pipe( ( [ k, v ] ) => v ) ),
       head,
 
     ),

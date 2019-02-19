@@ -2,7 +2,7 @@
 
 import { complement, pipe, untypedCurry } from '../function'
 import { filter } from '../functor-helpers'
-import { FlattenOnce} from '../helper-types'
+import { FlattenOnce } from '../helper-types'
 import { contains } from './contains'
 import unique from './unique'
 

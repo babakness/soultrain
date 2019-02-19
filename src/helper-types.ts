@@ -362,6 +362,34 @@ type _Deeper = 'deeper' | 'next'
 type _Pass = 'flattenType' | 'markInfinite' | 'error' | 'pass'
 type _Advance = 'advance' | 'advanceWide'
 
+// interface DeepFlattenInterface<A extends any[], N extends any[] = [], Deeper extends _Deeper = 'deeper', Advance extends _Advance = 'advance', Pass extends _Pass = 'pass'> {
+//   'advance': ( ( ..._: A ) => any ) extends ( ( _: infer First, ..._1: infer Next ) => any )
+//     ? DeepFlatten< Next, Concat< [ N ], [ First ]>, Deeper, Advance, Pass>
+//     : never
+//   'advanceWide': ( ( ..._: A ) => any ) extends ( ( _: infer First, ..._1: infer Next ) => any )
+//     ? DeepFlatten< Next, N extends any[] ? Concat< [ N ], [ WidenType<First> ]> : never, Deeper, Advance, Pass>
+//     : never
+//   'deeper': ( ( ..._: A ) => any ) extends ( ( _: infer First, ..._1: infer Next ) => any )
+//     ? DeepFlatten< Next, IsFinite<First> extends true
+//       ? IsFinite<N> extends true
+//         ? Concat<FlattenOnce<N>, First>
+//         : never
+//       : never, Deeper, Advance, Pass>
+//     : never,
+//   'pass': ( ( ..._: A ) => any ) extends ( ( _: infer First, ..._1: infer Next ) => any )
+//     ? DeepFlatten< Next, N extends any[] ? Append< N, First> : never, Deeper, Advance, Pass>
+//     : never
+//   'flattenType': 1,
+//   'markInfinite': ( ( ..._: A ) => any ) extends ( ( _: infer First, ..._1: infer Next ) => any )
+//     ? DeepFlatten< Next, N extends any[] ? Concat< [ N ], [ 'infinite' ] > : never, Deeper, Advance, Pass>
+//     : never
+//   'error': {
+//     ERROR: 'Infinite Item',
+//     TEXT: 'Encountered an infinite item, evaluation haulted',
+//   }
+//   'done': N,
+// }
+
 export type DeepFlatten<A extends any[], N extends any[] = [], Deeper extends _Deeper = 'deeper', Advance extends _Advance = 'advance', Pass extends _Pass = 'pass'> = {
   // @ts-ignore
   'advance': ( ( ..._: A ) => any ) extends ( ( _: infer First, ..._1: infer Next ) => any )
