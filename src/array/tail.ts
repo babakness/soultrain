@@ -3,7 +3,8 @@
 import { Tail } from '../helper-types'
 
 export function tail<T extends [any, ...any[]]>( arr: T ): Tail<T>
-export function tail<T>( arr: T[] ): T[]
+export function tail<T extends any[]>( arr: T ): T
+export function tail<T extends string>( arr: T ): T
 /**
  * Get all but the head element of an array
  * @param arr array to retrieve tail from
