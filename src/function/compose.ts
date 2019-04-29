@@ -1,7 +1,7 @@
 /** @module function/compose.ts */
 
-import { head } from '../array/head'
-import { tail } from '../array/tail'
+import { init } from '../array/init'
+import { last } from '../array/last'
 import { ExtractFunctionArguments, ExtractFunctionReturnValue } from '../helper-types'
 
 export function compose<Fn>( entry: Fn ): ( ...args: ExtractFunctionArguments<Fn> ) => ExtractFunctionReturnValue<Fn>
@@ -41,7 +41,7 @@ export function compose<Fn, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R
  * :: fn |> ... f3 |> f2 |> f1
  */
 export function compose( ...funcs ) {
-  return ( arg ) => tail( funcs ).reduceRight( ( acc, item ) => item( acc ), head( funcs )( arg ) )
+  return ( arg ) => init( funcs ).reduceRight( ( acc, item ) => item( acc ), last( funcs )( arg ) )
 }
 
 export default compose
